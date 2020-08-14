@@ -1,0 +1,58 @@
+<?php
+session_set_cookie_params(172800);
+session_start();
+require('core/config.php');
+require('core/system.php');
+$core = new Core($db,$domain);
+require($core->getExtendPath());
+$muviko = new Muviko($db,$domain);
+$muviko->startUserSession($_SESSION);
+$muviko->verifySession(false);
+$muviko->getLanguage();
+define('THEME_PATH', $core->getThemePath());
+define('UPLOADS_PATH', $core->getUploadsPath());
+$page['name'] = $muviko->settings->website_title;
+$page['footer'] = true;
+$featured_movie = $muviko->getFeaturedMovie();
+$paged = isset($_GET['page'])?$_GET['page']:1;
+$genres = $muviko->getSections(3,$paged);
+$my_list = $muviko->getMyList();
+//$total_Geners = $muviko->get_total_records("SELECT id FROM genres AS genre WHERE EXISTS (SELECT id FROM movies WHERE movie_genres LIKE CONCAT('%', genre.id ,'%'))");
+/* echo '<pre>';
+    print_r($muviko->getHeaderPath());
+exit; */
+include($muviko->getHeaderPath());
+require($muviko->getPagePath('index'));
+require($muviko->getFooterPath());
+if(isset($_GET['action']) && $_GET['action'] == 'checkMovieYear'){
+    $movieYear = $db->query("SELECT * FROM movies WHERE movie_year='' LIMIT 50");
+    if($movieYear->num_rows > 0){
+        while($item = $movieYear->fetch_object()) {
+            $imdbid = $item->imdbid;
+            $movieOutput = run_tmdb_curl($imdbid);//->movie_results[0];
+            debug(array($item,$movieOutput));
+            if(!empty($movieOutput->movie_results)){
+                if($movieOutput->release_date != ''){
+                    $rDate = explode('-',$movieOutput->movie_results[0]->release_date);
+                    if(!empty($rDate)){
+                        $releaseDate = $rDate[0];
+                        $dbUpdate = $db->query("UPDATE movies SET movie_year='$releaseDate' WHERE imdbid='$imdbid' ");
+                        debug(array($item,$dbUpdate));
+                    }
+                }
+            }
+            else if(!empty($movieOutput->tv_results)){
+                $rDate = explode('-',$movieOutput->tv_results[0]->first_air_date);
+                    if(!empty($rDate)){
+                        $releaseDate = $rDate[0];
+                        $dbUpdate = $db->query("UPDATE movies SET movie_year='$releaseDate' WHERE imdbid='$imdbid' ");
+                        debug(array($item,$dbUpdate));
+                    }
+            }
+            debug(array($item,$movieOutput));
+        }
+    }
+}
+
+
+?>

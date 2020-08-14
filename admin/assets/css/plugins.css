@@ -1,0 +1,19 @@
+.chosen-container-multi .chosen-choices li.search-field input {
+	padding: 15px !important;
+}
+.chosen-container .chosen-results li.highlighted {
+	background-color: #98CB00;
+	color: #FFF;
+}
+.chosen-container-multi .chosen-choices li.search-choice {
+	background: #98CB00;
+	color: #FFF;
+	border: 0px;
+	padding: 5px;
+	position: relative;
+	top: 2.2px;
+	left: 5px;
+}
+.chosen-container-single .chosen-single {
+	background: #FFF;
+}

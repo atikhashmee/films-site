@@ -1,0 +1,1 @@
+UPDATE settings SET footer_on_content_optimized_pages='0',redirect_after_login='select_profile',show_actors='1',supports_starring='1',kid_profiles='1',supports_profiles='1'

@@ -1,0 +1,187 @@
+.video-card,
+.theme-card,
+.actor-card {
+    float: left;
+    position: relative;
+    margin: 5px;
+}
+
+.video-card .poster,
+.theme-card .poster {
+    height: 280px;
+    width: 191px;
+    background-size: auto 100%;
+    display: block;
+    position: relative;
+    background-repeat: no-repeat;
+    background-attachment: scroll;
+    background-position: center top;
+}
+
+.actor-card .poster {
+	height: 280px;
+	width: 191px;
+	background-size: auto 100%;
+	display: block;
+	position: relative;
+	background-repeat: no-repeat;
+	background-attachment: scroll;
+	background-position: center top;
+}
+
+.video-card .edit {
+    position: absolute;
+    top: 7px;
+    right: 15px;
+}
+
+.actor-card .edit {
+    position: absolute;
+    top: 7px;
+    right: 15px;
+}
+
+.video-card .edit i {
+    color: #FFF;
+    font-size: 1.1em;
+}
+
+.video-card .delete {
+    position: absolute;
+    top: 7px;
+    right: 40px;
+    border-right: 1px solid #66615B;
+    padding-right: 10px;
+}
+
+.video-card .delete i,
+.actor-card .delete i {
+    color: #FFF;
+    font-size: 1.1em;
+}
+
+.actor-card a {
+    color: #FFF;
+}
+
+.actor-card .delete {
+    position: absolute;
+    top: 7px;
+    right: 40px;
+    border-right: 1px solid #66615B;
+    padding-right: 10px;
+}
+
+.video-card .title {
+    position: absolute;
+    left: 15px;
+    bottom: 12px;
+    color: #FFF;
+    font-size: 1.2em;
+    font-weight: 300;
+}
+
+.theme-card .title {
+    position: absolute;
+    left: 17px;
+    bottom: 12px;
+    color: #FFF;
+    font-size: 1.4em;
+    font-weight: 300;
+}
+
+.theme-card .action {
+    position: absolute;
+    bottom: 37%;
+    left: 37%;
+}
+
+.actor-card .title {
+    position: absolute;
+    left: 15px;
+    bottom: 7px;
+    color: #FFF;
+    font-size: 1.2em;
+    font-weight: 300;
+}
+
+.tag {
+    background-color: #66615B;
+    color: #FFF;
+    -webkit-font-smoothing: antialiased;
+    font-size: 0.8em;
+}
+
+.dropdown-menu {
+    background-color: #FFF;
+}
+
+.panel-default .panel-heading {
+    background-color: #333;
+    color: #FFF;
+}
+
+.panel-success .panel-heading {
+    background-color: #98CB00;
+    color: #FFF;
+}
+
+.form-control {
+    border: 1px solid #CCC5B9 !important;
+    background: #FFF;
+}
+
+.p-b {
+    display: none;
+    width: 100%;
+    height: auto;
+}
+
+.p-b>div {
+    display: block;
+    width: 100%;
+    height: auto;
+    background-color: #f7f7f7;
+    border: 1px solid #d8d8d8;
+    padding: 20px 0;
+    border-top: 0;
+}
+
+.p-h h4 {
+    cursor: pointer;
+    padding: 10px 20px 10px 10px;
+    color: #FFF;
+    background-color: #212120;
+    border-radius: 5px;
+    margin-bottom: 0;
+}
+
+.p-h h4 i {
+    display: inline-block;
+    font-size: 18px;
+    float: right;
+    margin-top: 4px;
+    -webkit-transition: all ease-in-out .3s;
+    -moz-transition: all ease-in-out .3s;
+    -ms-transition: all ease-in-out .3s;
+    -o-transition: all ease-in-out .3s;
+    transition: all ease-in-out .3s;
+}
+
+.p-h.a-ph h4 i {
+    -webkit-transform: rotate3d(1, 0, 0, 180deg);
+    -moz-transform: rotate3d(1, 0, 0, 180deg);
+    -ms-transform: rotate3d(1, 0, 0, 180deg);
+    -o-transform: rotate3d(1, 0, 0, 180deg);
+    transform: rotate3d(1, 0, 0, 180deg);
+}
+
+.p-h.a-ph h4 {
+    color: #212120;
+    background-color: #c2c2c2;
+    border-radius: 5px 5px 0 0;
+}
+
+.p-b.a-pb>div {
+    border-radius: 0 0 5px 5px;
+}

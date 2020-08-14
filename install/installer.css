@@ -1,0 +1,46 @@
+html, body, * {
+	font-family: 'Lato', sans-serif !important;
+	-webkit-font-smoothing: antialiased !important;
+}
+body {
+	background-color: #FFF;
+}
+.container {
+	padding: 70px;
+}
+.progress {
+	margin-top: 10px;
+	margin-bottom: 0px;
+}
+h2 {
+	font-size: 2.1em;
+	font-weight: 600;
+	margin-top:30px;
+}
+form {
+	padding-top: 20px;
+}
+h3 {
+	font-weight: 500;
+	font-size: 1.7em;
+}
+.rq {
+	font-size: 16px;
+	width: 400px;
+	margin-bottom: 0px;
+	font-weight: 400;
+}
+span {
+	font-weight: 600;
+}
+.well {
+	padding: 50px;
+	overflow: auto;
+	border-radius: 20px;
+}
+.label {
+	color: #FFF;
+}
+a {
+	color: #5CB85C !important;
+}

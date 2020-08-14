@@ -1,0 +1,1 @@
+UPDATE settings SET footer_on_content_optimized_pages='1',redirect_after_login='index.php',show_actors='0',supports_starring='0',kid_profiles='0',supports_profiles='0'
