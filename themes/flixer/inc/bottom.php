@@ -16,9 +16,9 @@
                             <ul class="stacked-links">
                                 <li><big>Pages</big></li>
                                 <?php
-		$custom_pages = $muviko->getPages();
-		while($custom_page = $custom_pages->fetch_object()) {
-			?>
+                                    $custom_pages = $muviko->getPages();
+                                    while($custom_page = $custom_pages->fetch_object()) {
+			                            ?>
                                     <li>
                                         <a href="<?=$muviko->getDomain()?>/page/<?=$custom_page->id?>">
                                             <?=$custom_page->page_name?>
@@ -41,14 +41,14 @@
                             					Facebook
                             				</a>
                                 </li>
-                                <? } ?>
+                                <?php  } ?>
                                     <?php if(!empty($muviko->settings->twitter_url)) { ?>
                                     <li>
                                         <a href="<?=$muviko->settings->twitter_url?>" target="_blank">
                                 					Twitter
                                 				</a>
                                     </li>
-                                    <? } ?>
+                                    <?php } ?>
                             </ul>
                         </div>
                     </div>
@@ -57,7 +57,7 @@
                             <ul class="stacked-links">
                                 <?php $statistics = $muviko->getStatistics();
 
-                      $episode_count = $db->query("SELECT * FROM episodes");
+                                    $episode_count = $db->query("SELECT * FROM episodes");
                                 ?>
                                 <li>
                                     <h4>
@@ -85,7 +85,7 @@
         </div>
     </div>
 </footer>
-<? } ?>
+<?php } ?>
     <!--  Plugins -->
     <script src="<?=THEME_PATH?>/assets/js/jquery-1.10.2.js" type="text/javascript"></script>
     <script src="<?=THEME_PATH?>/assets/js/jquery-ui-1.10.4.custom.min.js" type="text/javascript"></script>

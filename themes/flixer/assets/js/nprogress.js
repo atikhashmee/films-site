@@ -289,7 +289,7 @@
 
   NProgress.getPositioningCSS = function() {
     // Sniff on document.body.style
-    var bodyStyle = document.body.style;
+    var bodyStyle = (style in document.body)?document.body.style:null;
 
     // Sniff prefixes
     var vendorPrefix = ('WebkitTransform' in bodyStyle) ? 'Webkit' :
@@ -389,7 +389,7 @@
     }
 
     function getVendorProp(name) {
-      var style = document.body.style;
+      var style = (style in document.body)?document.body.style:null;
       if (name in style) return name;
 
       var i = cssPrefixes.length,

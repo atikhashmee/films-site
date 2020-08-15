@@ -49,11 +49,11 @@ if(isset($_GET['ua']) && $_GET['ua']!=''){
 </head>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script>
-  jQuery(document).ready(function(){
+  /*jQuery(document).ready(function(){
        jQuery(document).bind("contextmenu",function(e){
               return false;
        });
-});
+});*/
 </script>
 <style>
 .item img{

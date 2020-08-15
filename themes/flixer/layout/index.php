@@ -118,17 +118,17 @@ style="
             $data = array_unique($data);
               foreach ($data as $arr) {
           $c_name = $db->query("SELECT genre_name FROM genres WHERE id='" . $arr . "'");
-
           $cname = $c_name->fetch_object();
           if ($arr) {
             $loadedItem = 'loaded-' . _gRS(6) . time();
             $category = $db->query("SELECT * FROM movies WHERE FIND_IN_SET('" . $arr . "', movie_genres) ORDER BY created_date DESC LIMIT 0, 8");
-          
+              
             if ($category->num_rows >= 1) {
               echo '<div class="home-section" mi="' . $arr . '" page="1">';
               $muviko->homeSectionHeading($cname->genre_name, 'category.php?id=' . $arr );
               echo '<div class="movie-slider-1 owl-theme owl-carousel ' . $loadedItem . '" id="' . $loadedItem . '">';
-              while ($item = $category->fetch_object()) {
+              while ($item = $category->fetch_object()) 
+              {
                 $movie_rating = isset($item->movie_rating) ? $item->movie_rating : '';
                 $muviko->newHomeMovieItem($item->id, $item->movie_thumb_image, $item->movie_name, $item->movie_year, $movie_rating, $item->is_series, $item->last_season, $item->watch);
               }
