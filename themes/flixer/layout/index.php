@@ -1,5 +1,9 @@
 <?php
+
+  $picture= '//unsplash.it/20/20';
+  if (isset($featured_movie->movie_poster_image)) {
   $picture = UPLOADS_PATH ."/poster_images/".$featured_movie->movie_poster_image;
+  }
   $logo_image = THEME_PATH.'/assets/images/logo.png';
 ?>
 <div class="home-page-image"
@@ -76,23 +80,23 @@ style="
   </div>
 </div>
 </nav>
-  <!-- <div class="container animated fadeIn" onclick="hideSearch();">
+   <div class="container animated fadeIn" onclick="hideSearch();">
     <div class="home-movie-info">
-      <div class="title"> <?= $featured_movie->movie_name ?> </div>
+      <div class="title"> <?= $featured_movie->movie_name??'name' ?> </div>
       <div class="star-rating"></div>
       <p class="plot">
-       <?= $featured_movie->movie_plot ?>
+       <?= $featured_movie->movie_plot??'plt' ?>
      </p>
      <a href="<?= $muviko->getDomain() ?>/titles.php?id=<?= $featured_movie->id ?>" class="btn btn-danger btn-fill" style="margin-right:10px;">
        <i class="ti-control-play"></i>
        <span> <?= $muviko->translate('Watch_Now') ?> </span>
      </a>
-     <?= $muviko->newAddListBtn($featured_movie->id, 'white') ?>
+     <?= $muviko->newAddListBtn($featured_movie->id??0, 'white') ?>
      <input type="hidden" id="movie_id" value="<?= $featured_movie->id ?>">
    </div>
- </div> -->
+ </div> 
 </div>
-<!-- <div class="container animated fadeIn" onclick="hideSearch();">
+<div class="container animated fadeIn" onclick="hideSearch();">
   <div class="row">
       <?php echo '<div class="load-more-wrapper"><a href="#" class="load-prev"><i class="fa fa-angle-up"></i></a></div>'; ?>
     <div class="col-lg-12 load-content">
@@ -141,7 +145,7 @@ style="
       echo '<div class="load-more-wrapper"><a href="#" class="load-more"><i class="fa fa-angle-down"></i></a></div>';
     ?>
   </div>
-</div> -->
+</div> 
 <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> -->
 <style type="text/css">
   .load-more-wrapper{
