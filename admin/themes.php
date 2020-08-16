@@ -84,17 +84,17 @@ if(isset($_POST['save'])) {
                             <select name="show_actors" class="form-control chosen" disabled>
                                 <option value="0"> Disabled </option>
                             </select>
-                            <? } else { ?>
+                            <?php } else { ?>
                             <select name="show_actors" class="form-control chosen" required>
                                 <option value="1" <?php echo ($admin->settings->show_actors == 1 ? 'selected' : false); ?>> Enabled </option>
                                 <option value="0" <?php echo ($admin->settings->show_actors == 0 ? 'selected' : false); ?>> Disabled </option>
                             </select>
-                            <? } ?>
+                            <?php } ?>
                             <?php if($admin->settings->supports_starring == 0) { ?>
                             <div class="help-block"> 
                                 This feature is not supported by the <b><?=ucfirst($admin->settings->theme)?></b> theme
                             </div>
-                            <? } ?>
+                            <?php } ?>
                         </div>
                         <div class="form-group">
                             <label> Profiles Module </label>
@@ -102,17 +102,17 @@ if(isset($_POST['save'])) {
                             <select name="show_profiles" class="form-control chosen" disabled>
                                 <option value="0"> Disabled </option>
                             </select>
-                            <? } else { ?>
+                            <?php } else { ?>
                             <select name="show_profiles" class="form-control chosen" required>
                                 <option value="1" <?php echo ($admin->settings->show_profiles == 1 ? 'selected' : false); ?>> Enabled </option>
                                 <option value="0" <?php echo ($admin->settings->show_profiles == 0 ? 'selected' : false); ?>> Disabled </option>
                             </select>
-                            <? } ?>
+                            <?php } ?>
                             <?php if($admin->settings->supports_profiles == 0) { ?>
                             <div class="help-block"> 
                                 This feature is not supported by the <b><?=ucfirst($admin->settings->theme)?></b> theme
                             </div>
-                            <? } ?>
+                            <?php } ?>
                         </div>
                         <div class="form-group">
                             <label> Kids Mode </label>
@@ -120,17 +120,17 @@ if(isset($_POST['save'])) {
                             <select name="kid_profiles" class="form-control chosen" disabled>
                                 <option value="0"> Disabled </option>
                             </select>
-                            <? } else { ?>
+                            <?php } else { ?>
                             <select name="kid_profiles" class="form-control chosen" required>
                                 <option value="1" <?php echo ($admin->settings->kid_profiles == 1 ? 'selected' : false); ?>> Enabled </option>
                                 <option value="0" <?php echo ($admin->settings->kid_profiles == 0 ? 'selected' : false); ?>> Disabled </option>
                             </select>
-                            <? } ?>
+                            <?php } ?>
                             <?php if($admin->settings->supports_profiles == 0) { ?>
                             <div class="help-block"> 
                                 This feature is not supported by the <b><?=ucfirst($admin->settings->theme)?></b> theme
                             </div>
-                            <? } ?>
+                            <?php } ?>
                         </div>
                         <button type="submit" name="save" class="btn btn-success btn-fill btn-wd">Save</button>
                     </form>

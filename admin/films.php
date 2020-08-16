@@ -71,10 +71,10 @@ $totalMovies = $db->query("SELECT COUNT(*) FROM movies where from_type='film' $W
                     </div>
                 </div>
             </nav>
-             <?php if(isset($_GET['error'])) { ?> <div class="alert alert-danger"> <?=$_GET['error']?> </div> <? } ?>
-             <?php if(isset($_GET['not_added']) && $_GET['not_added']!='') { ?> <div class="alert alert-danger"> IMDB ID's not added : <b><?=$_GET['not_added']?></b> </div> <? } ?>
-               <?php if(isset($_GET['ae']) && $_GET['ae']!='') { ?> <div class="alert alert-danger"> IMDB ID's already added : <b><?=$_GET['ae']?></b> </div> <? } ?>
-              <?php if(isset($_GET['success'])) { ?> <div class="alert alert-success">Successfully created.</div> <? } ?>
+             <?php if(isset($_GET['error'])) { ?> <div class="alert alert-danger"> <?=$_GET['error']?> </div> <?php  } ?>
+             <?php if(isset($_GET['not_added']) && $_GET['not_added']!='') { ?> <div class="alert alert-danger"> IMDB ID's not added : <b><?=$_GET['not_added']?></b> </div> <?php } ?>
+               <?php if(isset($_GET['ae']) && $_GET['ae']!='') { ?> <div class="alert alert-danger"> IMDB ID's already added : <b><?=$_GET['ae']?></b> </div> <?php } ?>
+              <?php if(isset($_GET['success'])) { ?> <div class="alert alert-success">Successfully created.</div> <?php } ?>
             <div class="content">
                 <div class="col-md-4">
                     <button type="button" class="btn btn-success btn-fill" id="eDDB">Enable Delete</button>

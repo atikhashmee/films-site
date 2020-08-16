@@ -50,7 +50,7 @@ style="
         <li>
           <a href="#" class="btn btn-danger btn-fill" data-toggle="modal" data-target="#login"><?= $muviko->translate('Sign_In') ?></a>
         </li>
-      <? } else { ?>
+      <?php } else { ?>
       <li class="dropdown">
         <a href="#" class="profile-photo dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
           <div class="profile-photo-small">
@@ -62,13 +62,13 @@ style="
             <?php if ($muviko->verifyAdmin(false)) { ?>
             <li><a href="<?= $muviko->getDomain() ?>/admin/index.php"><?= $muviko->translate('Admin') ?></a></li>
             <li class="divider"></li>
-            <? } ?>
+            <?php } ?>
             <li><a href="<?= $muviko->getDomain() ?>/my_list.php"><?= $muviko->translate('My_List') ?></a></li>
             <li><a href="<?= $muviko->getDomain() ?>/select_profile.php"><?= $muviko->translate('Switch_Profile') ?></a></li>
             <li><a href="<?= $muviko->getDomain() ?>/settings.php"><?= $muviko->translate('Settings') ?></a></li>
             <li><a href="<?= $muviko->getDomain() ?>/logout.php"><?= $muviko->translate('Logout') ?></a></li>
           </ul>
-        <?php  } } ?>
+        <?php  }  ?>
       </li>
       <?php if ($muviko->isKid()) { ?>
         <a href="select_profile" class="btn btn-danger btn-fill btn-sm exit-kids"><?= $muviko->translate('Exit_Kids') ?></a>

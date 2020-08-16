@@ -61,7 +61,7 @@ background-image: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.5), rgba(0, 0, 0,
       <li>
         <a href="#" class="btn btn-danger btn-fill" data-toggle="modal" data-target="#login"><?=$muviko->translate('Sign_In')?></a>
       </li>
-      <? } else { ?>
+      <?php } else { ?>
       <li class="dropdown">
         <a href="#" class="profile-photo dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
           <div class="profile-photo-small">
@@ -73,18 +73,18 @@ background-image: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.5), rgba(0, 0, 0,
           <?php if($muviko->verifyAdmin(false)) { ?>
           <li><a href="<?=$muviko->getDomain()?>/admin/index.php"><?=$muviko->translate('Admin')?></a></li>
           <li class="divider"></li>
-          <? } ?>
+          <?php } ?>
           <li><a href="<?= $muviko->getDomain() ?>/my_list.php"><?= $muviko->translate('My_List') ?></a></li>
           <li><a href="<?= $muviko->getDomain() ?>/select_profile.php"><?= $muviko->translate('Switch_Profile') ?></a></li>
           <li><a href="<?= $muviko->getDomain() ?>/settings.php"><?= $muviko->translate('Settings') ?></a></li>
           <li><a href="<?=$muviko->getDomain()?>/logout.php"><?=$muviko->translate('Logout')?></a></li>
         </ul>
-        <? } ?>
+        <?php } ?>
       </li>
       <?php if($muviko->isKid()) { ?>
       <a href="select_profile.php" class="btn btn-danger btn-fill btn-sm exit-kids"><?=$muviko->translate('Exit_Kids')?></a>
-      <? } ?>
-      <? } ?>
+      <?php } ?>
+      <?php } ?>
     </ul>
   </div>
 </div>
@@ -97,7 +97,7 @@ background-image: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.5), rgba(0, 0, 0,
     <div id="player"></div>
   </div> -->
   <iframe id="frameId" width="100%" height="100%" src="<?=$movie->movie_source?>" frameborder="0" scrolling="no" allowfullscreen=""></iframe>
-  <? }
+  <?php }
 }
    else { ?>
   <div class="subscribe-alert text-center">
@@ -106,7 +106,7 @@ background-image: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.5), rgba(0, 0, 0,
       <?=$muviko->translate('Subscribe_Now')?>
     </a>
   </div>
-  <? } ?>
+  <?php } ?>
 </div>
 </div>
 
@@ -252,14 +252,14 @@ else{
         <?=$muviko->translate('Episodes')?>
       </a>
     </li>
-    <? } ?>
+    <?php } ?>
     <?php if($muviko->settings->show_actors != 0) { ?>
     <li>
       <a href="#" id="button" onclick="loadCast(<?=$actor->id?>); return false;">
         <?=$muviko->translate('Starring')?>
       </a>
     </li>
-    <? } ?>
+    <?php } ?>
     <li>
       <a href="#" onclick="loadSuggestions(<?=$mid?>); return false;">
         <?=$muviko->translate('More_Like_This')?>
@@ -301,7 +301,7 @@ else{
                       </a>
                     </li>
                     
-                    <? } ?>
+                    <?php } ?>
 
                   </ul>
                 </div>
@@ -354,11 +354,6 @@ else{
 
 </div>
 </div>
-<?php
-// echo "<pre>";
-// print_r($arr);
-// echo "</pre>";
-?>
 <style type="text/css">
 .WARS{
   margin-bottom: 20px;

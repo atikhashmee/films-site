@@ -85,7 +85,7 @@ if(isset($_POST['save'])) {
         </nav>
         <div class="content">
             <div class="container-fluid">
-                <?php if(isset($error)) { ?> <div class="alert alert-danger"> <?=$error?> </div> <? } ?>
+                <?php if(isset($error)) { ?> <div class="alert alert-danger"> <?=$error?> </div> <?php } ?>
                 <form action="" method="post">
                     <div class="row">
                         <div class="col-lg-12">
