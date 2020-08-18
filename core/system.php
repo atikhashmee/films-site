@@ -690,6 +690,7 @@ if(!function_exists('debug')){
 	}
 }
 function getposterImg($movie_id){
+	return $domain.'/images/default-image.png';
 	global $db;
 	$getData = $db->query("SELECT movie_poster_image FROM movies WHERE id=$movie_id");
 	$picture = $getData->fetch_assoc()['movie_poster_image'];

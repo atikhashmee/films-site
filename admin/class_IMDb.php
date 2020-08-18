@@ -489,6 +489,10 @@ class IMDb
 			// Decode the JSON response
 			$data = json_decode($json);
 		}
+	
+		/* echo json_encode($data). '--'. $apiUrl;
+		print_r($data);
+		exit; */
 		
 		return $data;
 	}

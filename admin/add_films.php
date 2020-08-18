@@ -167,7 +167,8 @@ if (isset($_POST['add'])) {
           header('Location: films.php?success=1');
           exit();
       }
-    }else{
+    }
+    else{
 
        $movieOutput = run_tmdb_curl($imdbid)->movie_results[0];
 
@@ -475,7 +476,6 @@ if (isset($_POST['add'])) {
 <script src="assets/js/theme.js"></script>
 <script>
 $(document).ready(function(){
-
 	$("#submit-id").click(function(event){
 		$(".overlay").show();
 		var imdbid = $("#imdbidnew").val();
