@@ -606,25 +606,30 @@ class Data extends Admin {
 		return $episode;
 	}
 	public function getActors($movie=false,$movie_id=false,$search_query = '',$page = 1) {
-		if($movie == false) {
+		if($movie == false) 
+		{
 			$start_from = ($page-1) * $this->limit;
 			$WHERE = '';
 			if($search_query != ''){
 				$WHERE = " WHERE actor_name LIKE '%$search_query%'";
 			}
-	  } else {
-
+	 	} 
+	  	else 
+		{
 	    $relations = $this->db->query("SELECT DISTINCT  actor_id FROM episodes WHERE movie_id='".$this->movie_id."' AND actor_id!='' group by movie_id,season_id ORDER BY id ASC");
-
-      if($relations->num_rows===0){
-
+		
+			  if($relations->num_rows===0)
+			  {
+		
 				$relations = $this->db->query("SELECT * FROM actor_relations WHERE movie_id='".$this->movie_id."' ORDER BY id ASC");
-    		while($relation = $relations->fetch_object()) {
-        	$actor = $this->db->query("SELECT * FROM actors WHERE id in ('".$relation->actor_id."')");
+				
+				while($relation = $relations->fetch_object()) {
+					$actor = $this->db->query("SELECT * FROM actors WHERE id in ('".$relation->actor_id."')");
 					$actors[] = $actor->fetch_object();
-        }
+        		}
 			}
-			else{
+			else
+			{
 				while($relation = $relations->fetch_object()) {
 					$actorsData = explode(',',$relation->actor_id);
 					foreach ($actorsData as $acData) {
@@ -632,12 +637,12 @@ class Data extends Admin {
 						$actor = $actor->fetch_object();
 						$actors[] = $actor;
 					}
-      	}
+				}
 
 			}
-		return $actors;
+			return $actors;
 		}
-  }
+  	}
 	public function getActors1($actorsid) {
 		$actors = array();
 

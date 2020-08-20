@@ -345,10 +345,10 @@ else{
 <div class="clearfix"></div>
   <div class="dark-section">
  <div class="cast">
-          <div class="row" id="div1">
+        <div class="row" id="div1">
 
-          </div>
         </div>
+  </div>
 </div>
 </div>
 

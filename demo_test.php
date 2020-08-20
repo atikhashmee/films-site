@@ -24,7 +24,10 @@ $muviko->getLanguage();
 $muviko->setMovie($id);
 $movie = $muviko->getMovie(false,true);
 $actors = $muviko->getActors($movie=true,$movie_id=$id);
-
+/* echo '<pre>';
+				print_r($actors);
+				echo "<br>";
+				exit; */
 //$actors = $muviko->AllgetActors();
 $actors = array_filter($actors,'unique_obj');
 define('THEME_PATH', $core->getThemePath());
@@ -56,6 +59,11 @@ define('UPLOADS_PATH', $core->getUploadsPath());
             echo $output;
           }
         }
-
+        else
+        {
+            echo   $output .='<div class="actor col-md-2">
+                     <span style="color:red">Actore Image not found</span>
+                   </div>';
+        }
     }
 ?>

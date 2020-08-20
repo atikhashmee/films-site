@@ -66,7 +66,6 @@ if (isset($_POST['add'])) {
           /*Actors Starts*/
           $json = runCurl("https://api.themoviedb.org/3/tv/{$tv_id}/credits?api_key=".TMDB_KEY."&language=en-US");
           $array = get_object_vars($json);
-
           foreach ($array as $casts) {
               foreach ($casts as $cast) {
                   $name_c = $cast->name;
@@ -171,7 +170,6 @@ if (isset($_POST['add'])) {
     else{
 
        $movieOutput = run_tmdb_curl($imdbid)->movie_results[0];
-
         if (!empty($movieOutput)) {
             $checkmovie = "SELECT * FROM movies WHERE movie_name='" . $db->real_escape_string($movieOutput->title) . "'";
             if ($checkmovie_r->num_rows > 0) {
@@ -476,6 +474,7 @@ if (isset($_POST['add'])) {
 <script src="assets/js/theme.js"></script>
 <script>
 $(document).ready(function(){
+
 	$("#submit-id").click(function(event){
 		$(".overlay").show();
 		var imdbid = $("#imdbidnew").val();
