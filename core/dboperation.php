@@ -57,7 +57,7 @@ class BasicDb
 		$qry = $this->con->prepare($updatesal);
 		$val = $qry->execute();
 			} catch (PDOException $e ) {
-			echo $sql . "<br>" . $e->getMessage();
+			echo $updatesal . "<br>" . $e->getMessage();
 		}
 
 		
@@ -123,8 +123,8 @@ class BasicDb
 		return $val;
 	}
 	
-	public function getInsertId($colid) {
-		return $this->con->lastInsertId($colid);
+	public function getInsertId() {
+		return $this->con->lastInsertId();
 	}
 }
 

@@ -1,7 +1,11 @@
 <?php
     require('../core/config.php');
     require('../core/system.php');
+    _storeFilm('tt2302755');
     $data = run_tmdb_curl('tt2302755');
+    echo "<pre>";
+    print_r($data->movie_results[0]);
+    exit;
     return print_r($data);
     ini_set('max_execution_time', '0');
 
