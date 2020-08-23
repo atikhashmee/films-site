@@ -1,7 +1,8 @@
 <?php
     require('../core/config.php');
     require('../core/system.php');
-
+    $data = run_tmdb_curl('tt2302755');
+    return print_r($data);
     ini_set('max_execution_time', '0');
 
     /* $movies = $db->query('SELECT * FROM `movies`');
@@ -15,7 +16,7 @@
     echo $movies->num_rows;
     echo '<br>';
     echo count($movies_arr); */
-     $mansory_image_path= glob("../uploads/masonry_images/*");
+     /* $mansory_image_path= glob("../uploads/masonry_images/*");
      $poster_image_path= glob("../uploads/poster_images/*");
      $folder_path = '../uploads/actors/*';
      $actors_folder= glob($folder_path); //scandir($folder_path); //  
@@ -28,21 +29,18 @@
     $db->query('DELETE FROM `genres_relations`');  //genres relations
     $db->query('DELETE FROM `actors`');  //actors
     $db->query('DELETE FROM `actor_relations`');  //actors relations
-    $db->query('DELETE FROM `ratings`');  //ratings
+    $db->query('DELETE FROM `ratings`');  //ratings */
   
     /* $imdbid = 'tt2302755';
     $movieOutput = run_tmdb_curl($imdbid)->movie_results[0];
     $db_movie = $db->query('SELECT * FROM `movies` WHERE `imdbid`="'.$imdbid.'" LIMIT 1');
     $result = $db_movie->fetch_object();
     updateMovieInfo($result); */
-    $db_movies = $db->query('SELECT * FROM `movies` ORDER BY id DESC limit 0,100');
-    /* echo '<pre>';
-    print_r($db_movies);
-    exit; */
+    /* $db_movies = $db->query('SELECT * FROM `movies` ORDER BY id DESC limit 0,100');
     while($each_movie = $db_movies->fetch_object())
     {
         updateMovieInfo($each_movie);
-    }
+    } */
 
     function updateMovieInfo($movie_obj)
     {
