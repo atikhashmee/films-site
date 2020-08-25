@@ -924,219 +924,248 @@ if (!function_exists('_db')) {
 if (!function_exists('_storeFilm')) {
 	function _storeFilm($imdbid, $ext=null)
 	{
-		$is_series = 0;
-		if ($ext != null) {
-			$is_series = $ext->is_series??0;
-		}
-		if($is_series == 1)
-		{
-			//series test
-			$movieOutputs = run_tmdb_curl($imdbid);
-			$make_geners = array();
-			foreach ($movieOutputs->tv_results as $movieOutput) 
-			{
-
-				$tv_id = $movieOutput->id;
-			/* 	if ($video_name != "") {
-					$new_file_name = md5(mt_rand()) . '_video.mp4';
-					$url = $video_name;
-					$img = '../uploads/masonry_images/' . $new_file_name;
-					file_put_contents($img, file_get_contents($url));
-				} */
-				/*Geners Start*/
-				$genres = $movieOutput->genre_ids;
-				$make_geners = [];
-				$make_geners = _makeMovieGenres($genres);
-				$genres_video = implode(",",$make_geners);
-				/*Geners Ends*/
-
-				/*Actors Starts*/
-				
-				
-				$makeactors = implode(",", $make_actors);
-				$actors = explode(",", $makeactors);
-				/*Actors Ends*/
-
-
-				$description = $movieOutput->overview;
-				$video_name = $db->real_escape_string($movieOutput->name);
-				$video_description = $db->real_escape_string($description);
-				$video_categories = $genres_video ;
-				$is_kid_friendly = 0;
-				$im_url = "https://image.tmdb.org/t/p/original" . $movieOutput->poster_path;
-				if ($im_url != "") {
-					$extension = strtolower(end(explode('.', $movieOutput->poster_path)));
-					$new_file_name_2 = generate_postname($movieOutput->name) . '_poster' . time() . '.' . $extension;
-					$url = $im_url;
-					$img2 = '../uploads/poster_images/' . $new_file_name_2;
-					$poster = '../uploads/masonry_images/' . $new_file_name_2;
-					file_put_contents($img2, file_get_contents($im_url));
-					file_put_contents($poster, file_get_contents($im_url));
-					resize($im_url, $new_file_name_2, '../uploads/masonry_images/');
-				}
-				$json = runCurl("https://api.themoviedb.org/3/movie/{$imdbid}/alternative_titles?api_key=".TMDB_KEY);
-				$ary = get_object_vars($json);
-				$s = $ary['titles'];
-				$key = array();
-				$features = '';
-				foreach ($s as $value) {
-					if ($value->iso_3166_1 == 'US' || $value->iso_3166_1 == 'USA') {
-						$key[] = $value->iso_3166_1;
-						$features = $value->title;
-						$features = str_replace("'", $features);
-					}
-				}
-				$rating = $movieOutput->vote_average;
-				if (isset($movie->rating)) {
-					$rating = round((($movie->rating) / 2), 1);
-				}
-				$year = explode('-',$movieOutputs->tv_results[0]->first_air_date)[0];
-
-				$db->query("UPDATE movies
-				 set
-				   movie_name = '$video_name'
-				  ,movie_plot = '$video_description' 
-				  ,movie_genres = '$video_categories'
-				  ,movie_poster_image = '$new_file_name_2'
-				  ,movie_thumb_image = '$new_file_name_2'
-				  ,movie_rating = '$rating'
-				  ,movie_year = '$year'
-				  WHERE id = '$movie_id'
-				");
-
-				$db->query("INSERT INTO ratings(movie_id,user_id,rating) VALUES ('{$movie_id}','22','{$rating}')");
-				if(!empty($actors))
-				{
-					foreach ($actors as $actor => $actor_id) 
-					{
-						$db->query("INSERT INTO actor_relations(movie_id,actor_id) VALUES ('{$movie_id}','{$actor_id}')");
-					}
-				}
-	
-				if(!empty($make_geners))
-				{
-					foreach ($make_geners as $make_gener => $geners_id) 
-					{
-						$db->query("INSERT INTO genres_relations(movie_id,genres_id) values($movie_id,$geners_id)");
-					}
-				}
-				$db->query("UPDATE movies SET all_starcast = 'yes' WHERE id = '{$movie_id}'");
+		$err_arr = [];
+		$IMDB_result = run_tmdb_curl($imdbid);
+		$data = get_object_vars($IMDB_result);
+		$imdb_type = '';
+		$imdb_data = null;
+		$video_source = '';
+		if ($ext!=null) {
+			if (isset($ext->video_url) && !empty($ext->video_url)) {
+				$video_source = $ext->video_url;
 			}
+		} 
+
+		if (isset($data['movie_results']) && !empty($data['movie_results'])) 
+		{
+			$imdb_type = 'movie';
+			$imdb_data = isset($data['movie_results'][0])?$data['movie_results'][0]:null;
+		}
+		elseif(isset($data['tv_results']) && !empty($data['tv_results']))
+		{
+			$imdb_type = 'tv';
+			$imdb_data = isset($data['tv_results'][0])?$data['tv_results'][0]:null;
 		}
 		else
 		{
-	
-			$movieOutput = run_tmdb_curl($imdbid)->movie_results[0];
-			if (!empty($movieOutput)) 
+			$err_arr [] = $imdbid.' Item not supported currently';
+		}
+
+		if ($imdb_data!=null && $imdb_type!='') 
+		{
+			/*Geners Start*/
+			$genres = $imdb_data->genre_ids;
+			$make_geners = [];
+			$make_geners = _makeMovieGenres($genres);
+			$genres_video = implode(",",$make_geners);
+			/*Geners Ends*/
+
+			/*Actors Starts*/
+			$imdb_type_id =  $imdb_type=='tv'?$imdb_data->id:$imdbid;
+			$make_actors = [];
+			$make_actors = _makeActorsLists($imdb_type_id, $imdb_type);
+			if (isset($make_actors['status_code']) && $make_actors['status_code'] == 34) {
+				$err_arr[] = 'Actors Lists not found for the given ID '.$imdb_type_id.' type='.$imdb_type;
+			}
+			$makeactors = implode(",", $make_actors);
+			$actors = explode(",", $makeactors);
+			/*Actors Ends*/
+
+
+			/* store  video to server */
+			if ($video_source != "") 
 			{
-				/*Geners Start*/
-				$genres = $movieOutput->genre_ids;
-				$make_geners = _makeMovieGenres($genres);
-				$genres_video = implode(",", $make_geners);
-				/*Geners Ends*/
-
-				/*Actors Starts*/
-				$make_actors = _makeMovieActors($imdbid);
-				$makeactors = implode(",", $make_actors);
-				$actors = explode(',', $makeactors);
-				/*Actors Ends*/
-	
-				$description = $movieOutput->overview;
-				$video_name = $movieOutput->title;
-				$video_description = addslashes($description);
-				$video_categories = $genres_video;
-				$is_kid_friendly = 0;
-				$im_url = "https://image.tmdb.org/t/p/original" . $movieOutput->poster_path;
-
-				if ($im_url != "") {
-					$extension = isset(explode('.', $movieOutput->poster_path)[1])?explode('.', $movieOutput->poster_path)[1]:'jpg';
-					$new_file_name_2 = generate_postname($movieOutput->title) . '_poster' . time() . '.' . $extension;
-					$url = $im_url;
-					$img2 = '../uploads/poster_images/' . $new_file_name_2;
-					file_put_contents($img2, file_get_contents($im_url));
-					resize($im_url, $new_file_name_2, '../uploads/masonry_images/');
+				$new_file_name = $imdbid . '_video.mp4';
+				$the_file = '../uploads/videos/' . $new_file_name;
+				if (file_exists($the_file)) {
+					unlink($the_file);
+					file_put_contents($the_file, file_get_contents($video_source));
+				}
+				else 
+				{
+					file_put_contents($the_file, file_get_contents($video_source));
 				}
 				
-					$json = runCurl("https://api.themoviedb.org/3/movie/{$imdbid}/alternative_titles?api_key=".TMDB_KEY);
-					$ary = get_object_vars($json);
-					$s = $ary['titles'];
-					$key = array();
-					$features = '';
-					foreach ($s as $value) 
-					{
-						if ($value->iso_3166_1 == 'US' || $value->iso_3166_1 == 'USA') {
-							$key[] = $value->iso_3166_1;
-							$features = $value->title;
-							$features = str_replace("'", '-' ,$features);
-						}
-					}
-					$rating = $movieOutput->vote_average;
-					if (isset($movie->rating)) 
-					{
-						$rating = round((($movie->rating) / 2), 1);
-					}
-					$year = explode('-',$movieOutput->release_date)[0];
-
-					/* check if movie exits */
-						$movieRow = _db()
-						->joinQuery('SELECT * FROM movies where imdbid = "'.$imdbid.'"');
-					/* end of checking */
-
-					$moveArr = [
-						'movie_name' => $video_name,
-						'movie_plot'  =>$video_description,
-						'movie_genres'  => $video_categories,
-						'movie_poster_image'  => $new_file_name_2,
-						'movie_thumb_image'  => $new_file_name_2,
-						'movie_rating'  =>$rating,
-						'movie_year'  => $year,
-					];
-
-					$movie_id = '';
-					if ($movieRow->rowCount()>0) {
-						$moveRow = $movieRow->fetch(PDO::FETCH_ASSOC);
-						$movie_id = $moveRow['id'];
-						_db()->update('movies', $moveArr, 'imdbid = "'.$imdbid.'"');
-					}
-					else
-					{
-						$moveArr['imdbid'] = $imdbid;
-						_db()->insert('movies', $moveArr);
-						$movie_id = _db()->getInsertId();
-					}
-
-					if ($movie_id!='') {
-						_movieRatingUpdate($movie_id, $rating);
-						if(!empty($actors))
-						{
-							/* run a delet query before making new relations */
-							_db()->joinQuery('DELETE FROM `actor_relations` WHERE `movie_id`="'.$movie_id.'"');
-							foreach ($actors as $actor => $actor_id) 
-							{
-								_db()->insert('actor_relations', [
-									'movie_id' => $movie_id, 
-									'actor_id' => $actor_id,
-								]);
-							}
-						}
-	
-						if(!empty($make_geners))
-						{
-							_db()->joinQuery('DELETE FROM `genres_relations` WHERE `movie_id`="'.$movie_id.'"');
-							foreach ($make_geners as $Mg => $Gi) {
-								_db()->insert('genres_relations', [
-									'movie_id' => $movie_id, 
-									'genres_id' => $Gi,
-								]);
-							}
-						}
-						_db()->update('movies', [
-							'all_starcast' => 'yes'
-						], 'id = "'.$movie_id.'"');
-					}
-					
 			}
+			/* end store video to server */
+
+			$description = $imdb_data->overview;
+			$video_name = $imdb_type=='tv'?addslashes($imdb_data->name):addslashes($imdb_data->title);
+			$video_description = addslashes($description);
+			$video_categories = $genres_video ;
+			$is_kid_friendly = 0;
+			$im_url = "https://image.tmdb.org/t/p/original" . $imdb_data->poster_path;
+			if ($imdb_type == 'tv') 
+			{
+				if ($im_url != "") 
+				{
+					$extension = 
+					isset(explode('.', $imdb_data->poster_path)[1])?
+					explode('.', $imdb_data->poster_path)[1]:'jpg';
+					$new_file_name_2 = generate_postname($imdb_data->name) . '_poster' . $imdbid . '.' . $extension;
+					$url = $im_url;
+					$poster_path =  '../uploads/poster_images/';
+					$masonry_path = '../uploads/masonry_images/';
+					$poster_image = $poster_path. $new_file_name_2;
+					$masnory_image = $masonry_path. $new_file_name_2;
+					if (file_exists($poster_image)) {
+						unlink($poster_image);
+						resize(file_get_contents($im_url), $new_file_name_2, $poster_path, 50);
+					}
+					else 
+					{
+						resize(file_get_contents($im_url), $new_file_name_2, $poster_path, 50);
+					}
+
+
+					if (file_exists($masnory_image)) {
+						unlink($masnory_image);
+						resize(file_get_contents($im_url), $new_file_name_2, $masonry_path, 50);
+					}
+					else 
+					{
+						resize(file_get_contents($im_url), $new_file_name_2, $masonry_path, 50);
+					}
+					/* file_put_contents($img2, file_get_contents($im_url));
+					file_put_contents($poster, file_get_contents($im_url)); */
+				}
+			}
+
+			if ($imdb_type == 'movie') 
+			{
+
+				if ($im_url != "") {
+					$extension = isset(explode('.', $imdb_data->poster_path)[1])
+					?
+					explode('.', $imdb_data->poster_path)[1]:'jpg';
+					$new_file_name_2 = generate_postname($imdb_data->title) . '_poster' . $imdbid. '.' . $extension;
+					$url = $im_url;
+					$poster_path = '../uploads/poster_images/';
+					$poster_image = $poster_path.$new_file_name_2;
+					if (file_exists($poster_image)) {
+						unlink($poster_image);
+						resize(file_get_contents($im_url), $new_file_name_2, $poster_path, 50);
+					}
+					else 
+					{
+						resize(file_get_contents($im_url), $new_file_name_2, $poster_path, 50);
+					}
+				}
+			}
+			
+			$json = runCurl("https://api.themoviedb.org/3/movie/{$imdbid}/alternative_titles?api_key=".TMDB_KEY);
+			$ary = get_object_vars($json);
+			if (isset($ary['status_code']) && $ary['status_code'] == 34) {
+				$err_arr[] = 'Alernative titles are not found';
+			}
+			else
+			{
+
+				$s = $ary['titles'];
+				$key = array();
+				$features = '';
+				foreach ($s as $value) 
+				{
+					if ($value->iso_3166_1 == 'US' || $value->iso_3166_1 == 'USA') {
+						$key[] = $value->iso_3166_1;
+						$features = $value->title;
+						$features = str_replace("'", '-' ,$features);
+					}
+				}
+			}
+		
+		
+			
+			$rating = $imdb_data->vote_average;
+			if (isset($imdb_data->rating)) 
+			{
+				$rating = round((($imdb_data->rating) / 2), 1);
+			}
+			
+			$year = $imdb_type == 'tv'? 
+			explode('-',$imdb_data->first_air_date)[0]:
+			explode('-',$imdb_data->release_date)[0];
+
+			
+			/* check if movie exits */
+			$movieRow = _db()->joinQuery('SELECT * FROM movies where imdbid = "'.$imdbid.'"');
+			/* end of checking */
+			$moveArr = [
+				'movie_name' => $video_name,
+				'movie_plot'  =>$video_description,
+				'movie_genres'  => $video_categories,
+				'movie_poster_image'  => $new_file_name_2,
+				'movie_thumb_image'  => $new_file_name_2,
+				'movie_rating'  =>$rating,
+				'movie_year'  => $year,
+			];
+
+			if ($imdb_type == 'tv') {
+				$moveArr['is_series'] = 1;
+			}
+			else
+			{
+				$moveArr['is_series'] = 0;
+				$moveArr['from_type'] = 'film';
+			}
+
+			$movie_id = '';
+			if ($movieRow->rowCount()>0) {
+				$moveRow = $movieRow->fetch(PDO::FETCH_ASSOC);
+				$movie_id = $moveRow['id'];
+				if ($video_source!='') {
+					$moveArr['movie_source'] = $video_source;
+				}
+				_db()->update('movies', $moveArr, 'imdbid = "'.$imdbid.'"');
+			}
+			else
+			{
+				$moveArr['imdbid'] = $imdbid;
+				$moveArr['movie_source'] = $video_source;
+				_db()->insert('movies', $moveArr);
+				$movie_id = _db()->getInsertId();
+			}
+
+			if ($movie_id!='') 
+			{
+				_movieRatingUpdate($movie_id, $rating);
+				if(!empty($actors))
+				{
+					/* run a delet query before making new relations */
+					_db()->joinQuery('DELETE FROM `actor_relations` WHERE `movie_id`="'.$movie_id.'"');
+					foreach ($actors as $actor => $actor_id) 
+					{
+						_db()->insert('actor_relations', [
+							'movie_id' => $movie_id, 
+							'actor_id' => $actor_id,
+						]);
+					}
+				}
+
+				if(!empty($make_geners))
+				{
+					_db()->joinQuery('DELETE FROM `genres_relations` WHERE `movie_id`="'.$movie_id.'"');
+					foreach ($make_geners as $Mg => $Gi) {
+						_db()->insert('genres_relations', [
+							'movie_id' => $movie_id, 
+							'genres_id' => $Gi,
+						]);
+					}
+				}
+				_db()->update('movies', [
+					'all_starcast' => 'yes'
+				], 'id = "'.$movie_id.'"');
+			}
+			else 
+			{
+				$err_arr[] = 'Movie Id is not found , Database error, IMDB ID '.$imdbid;
+			}
+
 		}
+		return [
+			'error' => $err_arr,
+			'success' => [],
+		];
 	}
 }
 
@@ -1147,7 +1176,12 @@ if (!function_exists('_makeMovieGenres')) {
 		$is_kid_friendly = 0;
 		if (count($genres)>0) {
 			foreach ($genres as $category) {
-				$catName = runCurl("https://api.themoviedb.org/3/genre/{$category}?api_key=".TMDB_KEY)->name;
+				$st = runCurl("https://api.themoviedb.org/3/genre/{$category}?api_key=".TMDB_KEY);
+				$array1 = get_object_vars($st);
+				if (isset($array1['status_code']) && $array1['status_code'] == 34) {
+					continue;
+				}
+				$catName = $array1['name'];
 				$catName = str_replace(' ', '-', $catName);
 				$sql = "SELECT * FROM genres WHERE genre_name LIKE '%" . $catName . "%'";
 				$result = _db()->joinQuery($sql);
@@ -1198,222 +1232,104 @@ if (!function_exists('_movieRatingUpdate')) {
 	}
 }
 
-if (!function_exists('_makeMovieActors')) {
-	 function _makeMovieActors($imdbid)
+if (!function_exists('_makeActorsLists')) {
+	 function _makeActorsLists($imdbid, $type = 'movie')
 	 {
 		$make_actors = [];
-		$json = runCurl("https://api.themoviedb.org/3/movie/{$imdbid}/credits?api_key=".TMDB_KEY."&external_source=imdb_id");
-		$array1 = get_object_vars($json);
-		foreach ($array1['cast'] as $cast) {
-			$name_c = $cast->name;
-			$nconst = $cast->id;
-			$name_c = $cast->name;
-			$nconst = $cast->id;
-			$json = runCurl("https://api.themoviedb.org/3/person/{$nconst}?api_key=".TMDB_KEY."&language=en-US");
-			$array = get_object_vars($json);
-			$aname = addslashes($array['name']);
-			$birthday = $array['birthday'];
-			$place_of_birth = $array['place_of_birth'];
-			$biography = addslashes($array['biography']);
-			$imdb_id = $array['imdb_id'];
-			$actor_img = $array['profile_path'];
-			$im_url_c = "https://image.tmdb.org/t/p/original" . $actor_img;
-			if ($actor_img != '') 
-			{
-				$get_extension = isset(explode('.', $actor_img)[1])?explode('.', $actor_img)[1]:'jpg';
-				$extension = strtolower($get_extension);
-				$c_actor = generate_postname($aname) . '_actor_' . $imdb_id . '.' . $extension;
-				$ur11 = $im_url_c;
-				$file_path = UPLOAD_PATH . 'atik-actors/';
-				$the_file = $file_path.$c_actor;
-				if (file_exists($the_file)) {
-					unlink($the_file);
-					resize(file_get_contents($im_url_c), $c_actor, $file_path, 50);
-				}
-				else 
-				{
-					resize(file_get_contents($im_url_c), $c_actor, $file_path, 50);
-				}
-				
-				$img = UPLOAD_PATH . 'atik-actors/' . $c_actor;
-			} 
-			else 
-			{
-				$c_actor = "";
-			}
-
-			$sql1 = "SELECT * FROM actors WHERE imdbid ='".$imdb_id."'";
-			$result1 = _db()->joinQuery($sql1);
-			if ($result1->rowCount() <= 0) 
-			{
-
-				_db()->insert('actors', [
-					'actor_name' => $aname, 
-					'actor_picture' =>  $c_actor, 
-					'actor_nconst' => $nconst, 
-					'birthday' => $birthday, 
-					'place_of_birth' =>  $place_of_birth, 
-					'biography' => $biography, 
-					'actor_img_url' => $im_url_c, 
-					'imdbid' => $imdb_id, 
-				]);
-				$actor_id = _db()->getInsertId();
-			} 
-			else 
-			{
-				if ($result1) {
-					while ($row1 = $result1->fetch(PDO::FETCH_ASSOC)) 
-					{
-						$actor_id = $row1['id'];
-						_db()->update('actors', [
-							'actor_name' => $aname, 
-							'actor_picture' => $c_actor, 
-							'birthday' => $birthday, 
-							'place_of_birth' => $place_of_birth, 
-							'biography' => $biography, 
-							'actor_img_url' => $im_url_c, 
-							'imdbid' => $imdb_id 
-						], 
-						"id='".$actor_id."'");
-					}
-				}
-			}
-			$make_actors[] = $actor_id;
+		$url = "https://api.themoviedb.org/3/{$type}/{$imdbid}/credits?api_key=".TMDB_KEY;
+		if ( $type ==  'movie') {
+			$url .= "&external_source=imdb_id";
 		}
-		return $make_actors;
-	 }
-}
-if (!function_exists('_makeSeriesActors')) {
-	 function _makeSeriesActors($tv_id)
-	 {
-		
-		$array = get_object_vars($json);
-		if ($array['cast']) {
-			foreach ($array['cast'] as $cast) {
+		else
+		{
+			$url .= "&language=en-US";
+		}
+		$json = runCurl($url);
+		$array1 = get_object_vars($json);
+	
+		if (isset($array1['status_code']) && $array1['status_code'] == 34) {
+			return $array1;
+		}
+		if (isset($array1['cast'])) {
+			foreach ($array1['cast'] as $cast) {
 				$name_c = $cast->name;
 				$nconst = $cast->id;
 				$name_c = $cast->name;
 				$nconst = $cast->id;
 				$json = runCurl("https://api.themoviedb.org/3/person/{$nconst}?api_key=".TMDB_KEY."&language=en-US");
 				$array = get_object_vars($json);
-				$aname = $array['name'];
+				$aname = addslashes($array['name']);
 				$birthday = $array['birthday'];
-				$place_of_birth = $array['place_of_birth'];
+				$place_of_birth = addslashes($array['place_of_birth']);
 				$biography = addslashes($array['biography']);
 				$imdb_id = $array['imdb_id'];
 				$actor_img = $array['profile_path'];
 				$im_url_c = "https://image.tmdb.org/t/p/original" . $actor_img;
-				if ($actor_img != '') {
-					$extension = strtolower(end(explode('.', $actor_img)));
-					$c_actor = generate_postname($aname) . '_actor' . time() . '.' . $extension;
+				if ($actor_img != '') 
+				{
+					$get_extension = isset(explode('.', $actor_img)[1])?explode('.', $actor_img)[1]:'jpg';
+					$extension = strtolower($get_extension);
+					$c_actor = generate_postname($aname) . '_actor_' . $imdb_id . '.' . $extension;
 					$ur11 = $im_url_c;
-					resize(file_get_contents($im_url_c), $c_actor, UPLOAD_PATH . 'actors/', 50);
+					$file_path = UPLOAD_PATH . 'actors/';
+					$the_file = $file_path.$c_actor;
+					if (file_exists($the_file)) {
+						unlink($the_file);
+						resize(file_get_contents($im_url_c), $c_actor, $file_path, 50);
+					}
+					else 
+					{
+						resize(file_get_contents($im_url_c), $c_actor, $file_path, 50);
+					}
+					
 					$img = UPLOAD_PATH . 'actors/' . $c_actor;
 				} 
 				else 
 				{
 					$c_actor = "";
 				}
-
-
-				$sql1 = "SELECT * FROM actors WHERE actor_name LIKE '%" . $aname . "%'";
-				$result1 = $db->query($sql1);
-				if ($result1->num_rows <= 0) 
+	
+				$sql1 = "SELECT * FROM actors WHERE imdbid ='".$imdb_id."'";
+				$result1 = _db()->joinQuery($sql1);
+				if ($result1->rowCount() <= 0) 
 				{
-					$db->query("INSERT INTO actors (actor_name,actor_picture,actor_nconst,birthday,place_of_birth,biography,actor_img_url,imdbid) VALUES ('" . $aname . "','" . $c_actor . "','" . $nconst . "','" . $birthday . "','" . $place_of_birth . "','" . $biography . "','" . $im_url_c . "','" . $imdb_id . "')");
-					$actor_id = $db->insert_id;
+	
+					_db()->insert('actors', [
+						'actor_name' => $aname, 
+						'actor_picture' =>  $c_actor, 
+						'actor_nconst' => $nconst, 
+						'birthday' => $birthday, 
+						'place_of_birth' =>  $place_of_birth, 
+						'biography' => $biography, 
+						'actor_img_url' => $im_url_c, 
+						'imdbid' => $imdb_id, 
+					]);
+					$actor_id = _db()->getInsertId();
 				} 
 				else 
 				{
-					while ($row1 = $result1->fetch_assoc()) {
-						$actor_id = $row1['id'];
-						$a = "UPDATE actors SET actor_name = '$aname',actor_picture ='$c_actor',actor_nconst = '$nconst',birthday='$birthday', place_of_birth='$place_of_birth',biography='$biography',actor_img_url='$im_url_c',imdbid='$imdb_id' WHERE id = '$actor_id'";
-						$db->query($a);
+					if ($result1) {
+						while ($row1 = $result1->fetch(PDO::FETCH_ASSOC)) 
+						{
+							$actor_id = $row1['id'];
+							_db()->update('actors', [
+								'actor_name' => $aname, 
+								'actor_picture' => $c_actor, 
+								'birthday' => $birthday, 
+								'place_of_birth' => $place_of_birth, 
+								'biography' => $biography, 
+								'actor_img_url' => $im_url_c, 
+								'imdbid' => $imdb_id 
+							], 
+							"id='".$actor_id."'");
+						}
 					}
 				}
 				$make_actors[] = $actor_id;
 			}
 		}
-		$make_actors = [];
-		$json = runCurl("https://api.themoviedb.org/3/tv/{$tv_id}/credits?api_key=".TMDB_KEY."&language=en-US");
-		$array1 = get_object_vars($json);
-		foreach ($array1['cast'] as $cast) {
-			$name_c = $cast->name;
-			$nconst = $cast->id;
-			$name_c = $cast->name;
-			$nconst = $cast->id;
-			$json = runCurl("https://api.themoviedb.org/3/person/{$nconst}?api_key=".TMDB_KEY."&language=en-US");
-			$array = get_object_vars($json);
-			$aname = addslashes($array['name']);
-			$birthday = $array['birthday'];
-			$place_of_birth = $array['place_of_birth'];
-			$biography = addslashes($array['biography']);
-			$imdb_id = $array['imdb_id'];
-			$actor_img = $array['profile_path'];
-			$im_url_c = "https://image.tmdb.org/t/p/original" . $actor_img;
-			if ($actor_img != '') 
-			{
-				$get_extension = isset(explode('.', $actor_img)[1])?explode('.', $actor_img)[1]:'jpg';
-				$extension = strtolower($get_extension);
-				$c_actor = generate_postname($aname) . '_actor_' . $imdb_id . '.' . $extension;
-				$ur11 = $im_url_c;
-				$file_path = UPLOAD_PATH . 'atik-actors/';
-				$the_file = $file_path.$c_actor;
-				if (file_exists($the_file)) {
-					unlink($the_file);
-					resize(file_get_contents($im_url_c), $c_actor, $file_path, 50);
-				}
-				else 
-				{
-					resize(file_get_contents($im_url_c), $c_actor, $file_path, 50);
-				}
-				
-				$img = UPLOAD_PATH . 'atik-actors/' . $c_actor;
-			} 
-			else 
-			{
-				$c_actor = "";
-			}
-
-			$sql1 = "SELECT * FROM actors WHERE imdbid ='".$imdb_id."'";
-			$result1 = _db()->joinQuery($sql1);
-			if ($result1->rowCount() <= 0) 
-			{
-
-				_db()->insert('actors', [
-					'actor_name' => $aname, 
-					'actor_picture' =>  $c_actor, 
-					'actor_nconst' => $nconst, 
-					'birthday' => $birthday, 
-					'place_of_birth' =>  $place_of_birth, 
-					'biography' => $biography, 
-					'actor_img_url' => $im_url_c, 
-					'imdbid' => $imdb_id, 
-				]);
-				$actor_id = _db()->getInsertId();
-			} 
-			else 
-			{
-				if ($result1) {
-					while ($row1 = $result1->fetch(PDO::FETCH_ASSOC)) 
-					{
-						$actor_id = $row1['id'];
-						_db()->update('actors', [
-							'actor_name' => $aname, 
-							'actor_picture' => $c_actor, 
-							'birthday' => $birthday, 
-							'place_of_birth' => $place_of_birth, 
-							'biography' => $biography, 
-							'actor_img_url' => $im_url_c, 
-							'imdbid' => $imdb_id 
-						], 
-						"id='".$actor_id."'");
-					}
-				}
-			}
-			$make_actors[] = $actor_id;
-		}
 		return $make_actors;
 	 }
 }
+
 

@@ -6,7 +6,7 @@
     $_db['host'] = 'localhost';
     $_db['user'] = 'root';
     $_db['pass'] = '';
-    $_db['name'] = 'yu_db';
+    $_db['name'] = 'yu';
 
     $db = new mysqli($_db['host'], $_db['user'], $_db['pass'], $_db['name']) or die('MySQL Error');
 

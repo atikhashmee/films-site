@@ -8,7 +8,7 @@ class FilmDbConnection extends PDO
 	public static $instance=null;
 	public function __construct()
 	{
-		 parent::__construct("mysql:host=localhost;dbname=yu_db", "root", "");
+		 parent::__construct("mysql:host=localhost;dbname=yu", "root", "");
 		
 	}
 	public static function getInstance()

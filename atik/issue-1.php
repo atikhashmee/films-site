@@ -1,10 +1,15 @@
 <?php
     require('../core/config.php');
     require('../core/system.php');
-    _storeFilm('tt2302755');
-    $data = run_tmdb_curl('tt2302755');
+    //$video = 'https://drive.google.com/file/d/1ItGfKy3tqmteJgfmJ6ohOQWrDVf3oSCa/preview';
+    $video = 'https://www.youtube.com/watch?v=mzscg6Umdtk';
+    $ex = new stdclass;
+    $ex->video_url = $video;
+    _storeFilm('tt0249371', $ex);
+    $data = run_tmdb_curl('tt0249371');
     echo "<pre>";
-    print_r($data->movie_results[0]);
+    //print_r($data->movie_results[0]);
+    print_r($data);
     exit;
     return print_r($data);
     ini_set('max_execution_time', '0');

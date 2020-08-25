@@ -10,166 +10,33 @@ $admin->verifyAdmin(true);
 $errors = '';
 $errorImdbId = array();
 $haveError = false;
-if (isset($_FILES['excel-upload']) && $_FILES['excel-upload']['name'] != '') {
-    $alredyExists = array();
-    $handle = fopen($_FILES['excel-upload']['tmp_name'], 'r');
+if (isset($_FILES['excel-upload']) && $_FILES['excel-upload']['name'] != '') 
+    {
+        $alredyExists = array();
+        $handle = fopen($_FILES['excel-upload']['tmp_name'], 'r');
+        
 
     //   require 'class_IMDb.php';
     //   $imdb = new IMDb(true);
     // 	$imdb->summary=false;
     $isnotInsert = array();
     $is_kid_friendly = 0;
-    while ($data = fgetcsv($handle, 1000, ",")) {
-    //  print_r($data);
+    $returnArr= [];
+    while ($data = fgetcsv($handle, 1000, ",")) 
+    {
         $imdbid = $data[0];
-    //  print_r($imdbid);
         $video = (isset($data[1]) && $data[1] != '')?$data[1]:'';
-        $movieid = $db->query("SELECT * FROM movies WHERE imdbid='{$imdbid}'");
-    //      $movieOutput = run_tmdb_curl($imdbid);
 
-        if ($movieid->num_rows == 0) {
-
-            $movieOutput = run_tmdb_curl($imdbid)->movie_results[0];
-          //  print_r($movieOutput);
-            if (!empty($movieOutput)) {
-                $checkmovie = "SELECT * FROM movies WHERE movie_name='" . $db->real_escape_string($movieOutput->title) . "'";
-                if ($video != "") {
-                    $new_file_name = md5(mt_rand()) . '_video.mp4';
-                    $url = $video;
-                    $img = '../uploads/masonry_images/' . $new_file_name;
-                    file_put_contents($img, file_get_contents($url));
-                }
-                //Geners Start
-                $genres = $movieOutput->genre_ids;
-                foreach ($genres as $category) {
-                    $catName = runCurl("https://api.themoviedb.org/3/genre/{$category}?api_key=".TMDB_KEY)->name;
-                    $sql = "SELECT * FROM genres WHERE genre_name LIKE '%{$catName}%'";
-                    $result = $db->query($sql);
-
-                    if ($result->num_rows > 0) {
-                        while ($row = $result->fetch_assoc()) {
-                            $gener_id = $row['id'];
-                        }
-                    } else {
-                        $newinsert = $db->query("INSERT INTO genres(genre_name,is_kid_friendly) VALUES ('{$catName}','{$is_kid_friendly}')");
-                        $gener_id = $db->insert_id;
-                    }
-                    $make_geners[] = $gener_id;
-                }
-
-                $genres_video = implode(",", $make_geners);
-                $json = runCurl("https://api.themoviedb.org/3/movie/{$imdbid}/credits?api_key=".TMDB_KEY."&external_source=imdb_id");
-                $array = get_object_vars($json);
-                foreach ($array as $casts) {
-                    foreach ($casts as $cast) {
-                        $name_c = $cast->name;
-                        $nconst = $cast->id;
-                        $json = runCurl("https://api.themoviedb.org/3/person/{$nconst}?api_key=".TMDB_KEY."&language=en-US");
-                        $array = get_object_vars($json);
-                        $aname = $array['name'];
-                        $birthday = $array['birthday'];
-                        $place_of_birth = $array['place_of_birth'];
-                        $biography = addslashes($array['biography']);
-                        $imdb_id = $array['imdb_id'];
-                        $actor_img = $array['profile_path'];
-                        $im_url_c = "https://image.tmdb.org/t/p/original" . $actor_img;
-                        if ($actor_img != '') {
-                            $extension = strtolower(end(explode('.', $actor_img)));
-                            $c_actor = generate_postname($aname) . '_actor' . time() . '.' . $extension;
-                            $ur11 = $im_url_c;
-                            resize(file_get_contents($im_url_c), $c_actor, UPLOAD_PATH . 'actors/', 50);
-                            $img = UPLOAD_PATH . 'actors/' . $c_actor;
-                        } else {
-                            $c_actor = "";
-                        }
-                        $sql1 = "SELECT * FROM actors WHERE actor_name LIKE '%{$aname}%'";
-                        $result1 = $db->query($sql1);
-                        if ($result1->num_rows <= 0) {
-                            $db->query("INSERT INTO actors (actor_name,actor_picture,actor_nconst,birthday,place_of_birth,biography,actor_img_url,imdbid) VALUES ('{$aname}','{$c_actor}','{$nconst}','{$birthday}','{$place_of_birth}','{$biography}','{$im_url_c}','{$imdb_id}')");
-                            $actor_id = $db->insert_id;
-                        } else {
-                            while ($row1 = $result1->fetch_assoc()) {
-                                $actor_id = $row1['id'];
-                                $a = "UPDATE actors SET actor_name = '{$aname}',actor_picture ='{$c_actor}',actor_nconst = '{$nconst}',birthday='{$birthday}', place_of_birth='{$place_of_birth}',biography='{$biography}',actor_img_url='{$im_url_c}',imdbid='{$imdb_id}' WHERE id = '{$actor_id}'";
-                                $db->query($a);
-                            }
-                        }
-                        $make_actors[] = $actor_id;
-                    }
-                }
-                $makeactors = implode(",", $make_actors);
-                //Actors Ends
-                $description = $movieOutput->overview;
-                $video_name = $db->real_escape_string($movieOutput->title);
-                $video_description = $db->real_escape_string($description);
-                $video_categories = $genres_video;
-                $is_kid_friendly = 0;
-                $source = $video_file_mp4;
-                if (isset($_POST['video_url']) && trim($_POST['video_url']) != "") {
-                    $video_format = $_POST['video_format'];
-                    $source = $_POST['video_url'];
-                } else {
-                    $video_format = 0;
-                    $source = $video_file_mp4;
-                }
-                $im_url = "https://image.tmdb.org/t/p/original" . $movieOutput->poster_path;
-                if ($im_url != "") {
-                    $extension = strtolower(end(explode('.', $movieOutput->poster_path)));
-                    $new_file_name_2 = generate_postname($movieOutput->title) . '_poster' . time() . '.' . $extension;
-                    $url = $im_url;
-                    $img2 = '../uploads/poster_images/' . $new_file_name_2;
-                    file_put_contents($img2, file_get_contents($im_url));
-                    resize($im_url, $new_file_name_2, '../uploads/masonry_images/');
-                }
-                $json = runCurl("https://api.themoviedb.org/3/movie/{$imdbid}/alternative_titles?api_key=".TMDB_KEY);
-                $features = '';
-                foreach ($json->titles as $value) {
-                    if ($value->iso_3166_1 == 'US' || $value->iso_3166_1 == 'USA') {
-                        $features = $value->title;
-                    }
-                }
-                $rating = $movieOutput->vote_average;
-                if (isset($movie->rating)) {
-                    $rating = round(($movie->rating / 2), 1);
-                }
-                $movieYear = '';
-                $rDate = explode('-',$movieOutput->release_date);
-                if(!empty($rDate)){
-                    $movieYear = $rDate[0];
-                }
-                $date = date('Y-m-d H:i:s');
-                $insertMovieKey = array('movie_name','movie_plot','movie_genres','movie_poster_image','movie_thumb_image','movie_plays','movie_source','movie_rating','movie_year','from_type','imdbid','is_embed','alternative_titles','created_date');
-                $insertMovieValues = array("'{$video_name}'","'{$video_description}'","'{$video_categories}'","'{$new_file_name_2}'","'{$new_file_name_2}'",'0',"'{$video}'","'{$rating}'","'{$movieYear}'","'film'","'{$imdbid}'",$video_format,"'{$features}'","'{$date}'");
-                $db->query("INSERT INTO movies (".implode(',',$insertMovieKey).") VALUES (".implode(',',$insertMovieValues).")");
-                $actors = $make_actors;
-                $movie_id = $db->insert_id;
-                $db->query("INSERT INTO ratings(movie_id,user_id,rating) VALUES ('{$movie_id}','22','{$rating}')");
-                foreach ($actors as $actor => $actor_id) {
-                    $kap = $db->query("SELECT * FROM actor_relations WHERE movie_id='{$movie_id}' AND actor_id='{$actor_id}'");
-                    if ($kap->num_rows == 0) {
-                        $db->query("INSERT INTO actor_relations(movie_id,actor_id) VALUES ('{$movie_id}','{$actor_id}')");
-                    }
-                }
-                foreach ($make_geners as $make_gener => $geners_id) {
-                    $db->query("INSERT INTO genres_relations(movie_id,genres_id) values($movie_id,$geners_id)");
-                }
-                $db->query("UPDATE movies SET all_starcast = 'yes' WHERE id = '{$movie_id}'");
-                unset($actors);
-                unset($make_actors);
-                unset($make_geners);
-            }
-            else{
-                $haveError = true;
-                $errorImdbId[] = $imdbid;
-            }
-        } else {
-            $alredyExists[] = $imdbid;
-        }
+        $ex = new stdclass;
+        $ex->video_url = $video;
+        $returnArr[] = _storeFilm($imdbid, $ex);
     }
     fclose($handle);
     if($haveError){
       $errorIID = "&not_added=".implode(',',$errorImdbId);
     }
+    echo '<pre>';
+    print_r($returnArr);
   //  print_r($errorImdbId);
   //  print_r($alredyExists);
     header('Location: films.php?success=1&ae=' . implode(',', $alredyExists).$errorIID);
