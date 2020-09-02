@@ -14,7 +14,11 @@ $WHERE = '';
 if($search != ''){
     $WHERE = " WHERE actor_name LIKE '%$search%'";
 }
-$actors = $db->query("SELECT * FROM actors $WHERE LIMIT 50");
+$limit = 50;
+$start_from = ($page-1) * $limit;
+$sql = "SELECT * FROM actors $WHERE LIMIT $start_from, $limit";
+
+$actors = $db->query($sql);
 $totalActors = $db->query("SELECT COUNT(*) FROM actors $WHERE")->fetch_array()[0];
 ?>
 <!DOCTYPE HTML>
@@ -84,8 +88,9 @@ $totalActors = $db->query("SELECT COUNT(*) FROM actors $WHERE")->fetch_array()[0
                 <div class="container-fluid">
                  <?php
                  if($actors->num_rows >= 1) {
-                   $p = $actors->fetch_object();
+                   //$p = $actors->fetch_object();
                     while($actor= $actors->fetch_object()) {
+                      
                         $picture = $admin->getDomain().'/uploads/actors/'.$actor->actor_picture;
                         $style = '';
                         // if($actor->actor_picture == '' || !filesize($picture)){
@@ -109,7 +114,7 @@ $totalActors = $db->query("SELECT COUNT(*) FROM actors $WHERE")->fetch_array()[0
                     }
                     $ouput = '<div class="clearfix"></div>
                     <div class="text-right col-md-12">';
-                    $ouput .= $admin->pagination($totalActors,$page);
+                    $ouput .= $admin->pagination($totalActors,$page, $limit);
                     $ouput .= '</div>';
                     echo $ouput;
                 }

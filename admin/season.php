@@ -96,21 +96,18 @@ $M = $db->query("SELECT movie_name,movie_year FROM movies WHERE id=$fid")->fetch
 
                       if($eS->num_rows >= 1) {
 												$counter = 1;
-		                    while($e = $eS->fetch_object()) {
-                        
-												  	
-                            
-                            if($e->episode_name!=''){
+                        while($e = $eS->fetch_object()) 
+                        {
+                            if($e->episode_name!='')
+                            {
                               $c = $e->episode_name;
-                            }else{
-                              // if($count < 10){$epName = 'Episode 0'.$count; }else{$epName='Episode '.$count;}
-                              
+                            }
+                            else
+                            {
                               $cd = ($counter < 10)?'0'.$counter:$counter;
                               $c = 'Episode '. $cd;
                             }
                             $f= $e->season_sub_id;
-
-
                             $eI = $admin->getDomain().'/uploads/episodes/'.$e->episode_thumbnail;
                            
 												    if(strpos($eI,"maxresdefault-1.jpg") !== false){ //$eI == ''
@@ -130,8 +127,8 @@ $M = $db->query("SELECT movie_name,movie_year FROM movies WHERE id=$fid")->fetch
 		                        echo '<a href="../episode.php?id='.$e->id.'" target="_blank">
 															<div class="title">
 																'.$M->movie_name.' ('.$M->movie_year.') <br />
-																Season '.$sN.' | '.$f.' | '.$c.'
-																
+                                Season '.$sN.' | Episode '.$f.' <br />
+                                 '.$c.'
 															</div>
 														</a>';
 		                        echo '</div></div>';

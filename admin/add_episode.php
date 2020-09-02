@@ -137,7 +137,7 @@ $movies = $db->query("SELECT * FROM movies WHERE movie_genres LIKE '%$getSeriesI
                 </div>
                 <div class="content">
 
-                    <?php if(isset($error)) { ?> <div class="alert alert-danger"> <?=$error?> </div> <? } ?>
+                    <?php if(isset($error)) { ?> <div class="alert alert-danger"> <?=$error?> </div> <?php } ?>
                     <form action="" method="post" enctype="multipart/form-data">
                         <div class="row">
                             <div class="col-lg-12">

@@ -107,12 +107,12 @@ $totalEpisodes = $db->query("SELECT COUNT(*) FROM movies WHERE from_type='film' 
                 </div>
             </nav>
             <?php if(isset($_GET['error'])) { ?> <div class="alert alert-danger"> <?=$_GET['error']?> </div>
-            <? } ?>
+            <?php } ?>
             <?php if(isset($_GET['ae']) && $_GET['ae']!='') { ?> <div class="alert alert-danger"> Already Exists
                 <?=$_GET['ae']?>.</div>
-            <? } ?>
+            <?php } ?>
             <?php if(isset($_GET['success'])) { ?> <div class="alert alert-success">Successfully created.</div>
-            <? } ?>
+            <?php } ?>
             <div class="content">
                 <div class="col-md-4 pull-right">
                     <form method="get">

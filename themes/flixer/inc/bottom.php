@@ -20,7 +20,7 @@
                                     while($custom_page = $custom_pages->fetch_object()) {
 			                            ?>
                                     <li>
-                                        <a href="<?=$muviko->getDomain()?>/page/<?=$custom_page->id?>">
+                                        <a href="<?=$muviko->getDomain()?>/page.php?id=<?=$custom_page->id?>">
                                             <?=$custom_page->page_name?>
                                         </a>
                                     </li>

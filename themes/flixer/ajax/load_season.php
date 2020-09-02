@@ -37,10 +37,20 @@ echo '<a style="cursor:pointer;" onclick="loadEpisodepage('.$episode->id.'); ret
 	}
 	if($episode->episode_name!=''){
 		$epName = $episode->episode_name;
-	}else{
-		 if($count < 10){$epName = 'Episode 0'.$count; }else{$epName='Episode '.$count;}
 	}
-echo '<p class="title" title="'.$episode->episode_name.'" style="color:white;">  '.$sN.' | '.$epName.' </p></a>
+	$newEpisode_name = '';
+	 if($count < 10)
+	 {
+	     $newEpisode_name = 'Episode 0'.$count; 
+	     
+	 }
+	 else
+	 {
+	     $newEpisode_name='Episode '.$count;
+	     
+	 }
+
+echo '<p class="title" title="'.$episode->episode_name.'" style="color:white;">  '.$sN.' | '.$newEpisode_name.' <br>'.$epName.' </p></a>
 <p class="description"> '.substr($episode->episode_description,0,100).' </p>
 </div>
 ';

@@ -373,7 +373,8 @@ class Data extends Admin {
 		$movies = $this->db->query("SELECT * FROM movies WHERE from_type='film' $WHERE ORDER BY id DESC LIMIT $start_from, $this->limit");
 		return $movies;
 	}
-	public function pagination($totalRecords,$page,$page_limit = ''){
+	public function pagination($totalRecords,$page,$page_limit = '')
+	{
 		$limit = ($page_limit != '')?$page_limit:$this->limit;
 		$adjacents = 3;
 		if(strpos(current_page_url(), "page")){

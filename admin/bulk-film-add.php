@@ -24,6 +24,9 @@ if (isset($_FILES['excel-upload']) && $_FILES['excel-upload']['name'] != '')
     $returnArr= [];
     while ($data = fgetcsv($handle, 1000, ",")) 
     {
+        /* echo '<pre>';
+        print_r($data);
+        exit; */
         $imdbid = $data[0];
         $video = (isset($data[1]) && $data[1] != '')?$data[1]:'';
 
