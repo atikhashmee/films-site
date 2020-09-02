@@ -475,8 +475,12 @@ class Data extends Admin {
 		$limit = ($page_limit != '')?$page_limit:$this->limit;
 		$adjacents = 3;
 		$url =   $_SERVER["REQUEST_URI"];
+		global $domain;
 	  $Ar = explode('/',$url);
-	  $targetpage	= "/".$Ar[4];
+	  /*  echo '<pre>';
+	  print_r($url);
+	  exit;  */
+	  $targetpage	= 'category.php?id='.$_GET['id'].'&';
 //echo current_page_url();
 		// if(strpos(current_page_url(), "page")){
 		// 	if(strpos(current_page_url(), "?")){
@@ -522,47 +526,47 @@ class Data extends Admin {
 				//close to beginning; only hide later pages
 				if($page < 1 + ($adjacents * 2))
 				{
-				for ($counter = 1; $counter < 4 + ($adjacents * 2); $counter++)
-				{
-					if ($counter == $page)
-					$pagination.= "<li class=\"active\"><a href=\"javascript:void(0)\">$counter</a>";
-					else
-					$pagination.= '<li><a href="'.$targetpage.'page='.$counter.'">'.$counter.'</a>';
-				}
-				$pagination.= "<li><a href=\"javascript:void(0)\">...</a>";
-				$pagination.= '<li><a href="'.$targetpage.'page='.$lpm1.'">'.$lpm1.'</a>';
-				$pagination.= '<li><a href="'.$targetpage.'page='.$lastpage.'">'.$lastpage.'</a>';
+					for ($counter = 1; $counter < 4 + ($adjacents * 2); $counter++)
+					{
+						if ($counter == $page)
+						$pagination.= "<li class=\"active\"><a href=\"javascript:void(0)\">$counter</a>";
+						else
+						$pagination.= '<li><a href="'.$targetpage.'page='.$counter.'">'.$counter.'</a>';
+					}
+					$pagination.= "<li><a href=\"javascript:void(0)\">...</a>";
+					$pagination.= '<li><a href="'.$targetpage.'page='.$lpm1.'">'.$lpm1.'</a>';
+					$pagination.= '<li><a href="'.$targetpage.'page='.$lastpage.'">'.$lastpage.'</a>';
 				}
 				//in middle; hide some front and some back
 				elseif($lastpage - ($adjacents * 2) > $page && $page > ($adjacents * 2))
 				{
-				$pagination.= '<li><a href="'.$targetpage.'page=1">1</a>';
-				$pagination.= '<li><a href="'.$targetpage.'page=2">2</a>';
-				$pagination.= "<li><a href=\"javascript:void(0)\">...</a>";
-				for ($counter = $page - $adjacents; $counter <= $page + $adjacents; $counter++)
-				{
-					if ($counter == $page)
-					$pagination.= "<li class=\"active\"><a href=\"javascript:void(0)\">$counter</a>";
-					else
-					$pagination.= '<li><a href="'.$targetpage.'page='.$counter.'">'.$counter.'</a>';
-				}
-				$pagination.= "<li><a href=\"javascript:void(0);\">...</a>";
-				$pagination.= '<li><a href="'.$targetpage.'page='.$lpm1.'">'.$lpm1.'</a>';
-				$pagination.= '<li><a href="'.$targetpage.'page='.$lastpage.'">'.$lastpage.'</a>';
+					$pagination.= '<li><a href="'.$targetpage.'page=1">1</a>';
+					$pagination.= '<li><a href="'.$targetpage.'page=2">2</a>';
+					$pagination.= "<li><a href=\"javascript:void(0)\">...</a>";
+					for ($counter = $page - $adjacents; $counter <= $page + $adjacents; $counter++)
+					{
+						if ($counter == $page)
+						$pagination.= "<li class=\"active\"><a href=\"javascript:void(0)\">$counter</a>";
+						else
+						$pagination.= '<li><a href="'.$targetpage.'page='.$counter.'">'.$counter.'</a>';
+					}
+					$pagination.= "<li><a href=\"javascript:void(0);\">...</a>";
+					$pagination.= '<li><a href="'.$targetpage.'page='.$lpm1.'">'.$lpm1.'</a>';
+					$pagination.= '<li><a href="'.$targetpage.'page='.$lastpage.'">'.$lastpage.'</a>';
 				}
 				//close to end; only hide early pages
 				else
 				{
-				$pagination.= '<li><a href="'.$targetpage.'page=1">1</a>';
-				$pagination.= '<li><a href="'.$targetpage.'page=2">2</a>';
-				$pagination.= "<li><a href=\"javascript:void(0);\">...</a>";
-				for ($counter = $lastpage - (2 + ($adjacents * 2)); $counter <= $lastpage; $counter++)
-				{
-					if ($counter == $page)
-					$pagination.= "<li class=\"active\"><a href=\"javascript:void(0)\">$counter</a>";
-					else
-					$pagination.= '<li><a href="'.$targetpage.'page='.$counter.'">'.$counter.'</a>';
-				}
+					$pagination.= '<li><a href="'.$targetpage.'page=1">1</a>';
+					$pagination.= '<li><a href="'.$targetpage.'page=2">2</a>';
+					$pagination.= "<li><a href=\"javascript:void(0);\">...</a>";
+					for ($counter = $lastpage - (2 + ($adjacents * 2)); $counter <= $lastpage; $counter++)
+					{
+						if ($counter == $page)
+						$pagination.= "<li class=\"active\"><a href=\"javascript:void(0)\">$counter</a>";
+						else
+						$pagination.= '<li><a href="'.$targetpage.'page='.$counter.'">'.$counter.'</a>';
+					}
 				}
 			}
 			//next button

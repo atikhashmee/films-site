@@ -1,6 +1,7 @@
 <?php
 session_set_cookie_params(172800);
 session_start();
+ini_set('max_execution_time', 0);
 require('../core/config.php');
 require('../core/system.php');
 $admin = new Data($db, $domain);
