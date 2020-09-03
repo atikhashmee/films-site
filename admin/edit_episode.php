@@ -23,6 +23,7 @@ if(isset($_POST['save'])) {
     $video_embed_code = $_POST['video_embed_code'];
     $video_file_mp4 = $_POST['video_file_mp4'];
     $season_number = $_POST['season_number'];
+    $season_sub_id = $_POST['season_sub_id'];
     $actors = $_POST['actors'];
     $actors = implode(',', $actors);
     $rating = $_POST['rating'];
@@ -55,8 +56,17 @@ if(isset($_POST['save'])) {
     } else {
         $new_file_name = $episode->episode_thumbnail;
     }
-    $db->query("UPDATE episodes SET episode_name='".$episode_name."',episode_description='".$episode_description."',episode_number='".$episode_number."',
-        episode_thumbnail='".$new_file_name."',episode_source='".$source."',is_embed='".$video_format."',actor_id='".$actors."',ratings='".$rating."' WHERE id='".$episode->id."'");
+    _db()->update('episodes', [
+        'episode_name' => $episode_name,
+        'episode_description' => $episode_description,
+        'episode_number' => $episode_number,
+        'episode_thumbnail' => $new_file_name,
+        'episode_source' => $source,
+        'is_embed' => $video_format,
+        'actor_id' => $actors,
+        'ratings' => $rating,
+        'season_sub_id' => $season_sub_id,
+    ], 'id = "'.$episode->id.'"');
     $db->query("UPDATE seasons SET season_number='".$season_number."' WHERE id='".$season->id."'");
     header('Location: episodes.php?success=2');
     exit;
@@ -127,7 +137,7 @@ $moviePoster = $moviePosters->fetch_object();
                     <h4 class="title"><?=$episode->episode_name?></h4>
                 </div>
                 <div class="content">
-                    <?php if(isset($error)) { ?> <div class="alert alert-danger"> <?=$error?> </div> <? } ?>
+                    <?php if(isset($error)) { ?> <div class="alert alert-danger"> <?=$error?> </div> <?php } ?>
                     <form action="" method="post" enctype="multipart/form-data">
                         <div class="row">
                             <div class="col-lg-12">
@@ -175,6 +185,14 @@ $moviePoster = $moviePosters->fetch_object();
                         </div>
                         <div class="row">
                             <div class="col-lg-12">
+                                <div class="panel panel-success">
+                                    <div class="panel-heading panel-title">Episode Number</div>
+                                    <div class="panel-body"> <input type="text" name="season_sub_id" class="form-control border-input" placeholder="Number of the current Episode" value="<?=$episode->season_sub_id?>" required > </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
                                 <div class="panel panel-default">
                                     <div class="panel-heading panel-title">Episode Description</div>
                                     <div class="panel-body"> <textarea id="editor" name="episode_description" rows="5" class="form-control" placeholder="Enter a description/plot for this episode" required><?=$episode->episode_description?></textarea> </div>
@@ -183,10 +201,8 @@ $moviePoster = $moviePosters->fetch_object();
                         </div>
                         <div class="row">
                             <div class="col-lg-12">
-
                                 <div class="panel panel-default">
                                     <div class="panel-heading panel-title">Episode Thumbnail</div>
-
                                     <div class="panel-body">
                                       <div class="col-md-6">
                                         <input type="file" name="episode_thumbnail" class="form-control border-input">

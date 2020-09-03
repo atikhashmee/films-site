@@ -17,6 +17,7 @@ if(isset($_POST['add'])) {
     $episode_name = $_POST['episode_name'];
     $episode_number = $_POST['episode_number'];
     $season_number = $_POST['season_number'];
+    $season_sub_id = $_POST['season_sub_id'];
     $episode_description = $db->real_escape_string($_POST['episode_description']);
     $video_format = $_POST['video_format'];
     $video_embed_code = $_POST['video_embed_code'];
@@ -60,8 +61,19 @@ if(isset($_POST['add'])) {
         $db->query("INSERT INTO seasons (movie_id,season_number) VALUES ('".$video_id."','".$season_number."')");
         $season_id = $db->insert_id;
     }
-    $db->query("INSERT INTO episodes (season_id,movie_id,episode_number,episode_name,episode_description,episode_thumbnail,episode_source,is_embed,actor_id,ratings)
-        VALUES ('".$season_id."','".$video_id."','".$episode_number."','".$episode_name."','".$episode_description."','".$new_file_name."','".$source."','".$is_embed."','".$actors."','".$rating."')");
+    _db()->insert('episodes', [
+        'season_id' => $season_id,
+        'movie_id' => $video_id,
+        'episode_number' => $episode_number,
+        'episode_name' => $episode_name,
+        'episode_description' => $episode_description,
+        'episode_thumbnail' => $new_file_name,
+        'episode_source' => $source,
+        'is_embed' => $is_embed,
+        'actor_id' => $actors,
+        'ratings' => $rating,
+        'season_sub_id' => $season_sub_id,
+    ]);
     $db->query("delete from my_watched where movie_id='".$video_id."'");
     header('Location: episodes.php?success=1');
     exit;
@@ -179,6 +191,14 @@ $movies = $db->query("SELECT * FROM movies WHERE movie_genres LIKE '%$getSeriesI
                                 <div class="panel panel-success">
                                     <div class="panel-heading panel-title">Season Number</div>
                                     <div class="panel-body"> <input type="text" name="season_number" class="form-control border-input" placeholder="What season does this episode belong to?" required> </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="panel panel-success">
+                                    <div class="panel-heading panel-title">Episode Number</div>
+                                    <div class="panel-body"> <input type="text" name="season_sub_id" class="form-control border-input" placeholder="Number of the current Episode" required> </div>
                                 </div>
                             </div>
                         </div>

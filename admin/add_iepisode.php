@@ -21,6 +21,7 @@ if (isset($_POST['add'])) {
     $source = $video_file_mp4;
   }
   $episode_number = $_POST['episode_number'];
+  $season_sub_id = $_POST['season_sub_id'];
   $echeck = "SELECT * FROM episodes WHERE episode_number='" . $episode_number . "'";
   $echeck = $db->query($echeck);
   $echeck->num_rows;
@@ -57,9 +58,22 @@ if (isset($_POST['add'])) {
   } else {
     $json = json_decode($response);
     $array = get_object_vars($json);
-   if(empty($array['tv_episode_results'])){
-     $db->query("INSERT INTO episodes (season_id,movie_id,episode_number,episode_name,episode_description,episode_thumbnail,episode_source,is_embed,actor_id,ratings) VALUES ('".$season_id."','".$video_id."','".$episode_number."','','Discription Coming Soon.','814512c0eb40e98a0f15cf493f8c6096maxresdefault-1.jpg','".$source."','0','','')");
-      }
+   if(empty($array['tv_episode_results']))
+    {
+        _db()->insert('episodes', [
+            'season_id' => $season_id,
+            'movie_id' => $video_id,
+            'episode_number' => $episode_number,
+            'season_sub_id' => $season_sub_id,
+            'episode_name' => 'No Name',
+            'episode_description' => 'Discription Coming Soon.',
+            'episode_thumbnail' => '814512c0eb40e98a0f15cf493f8c6096maxresdefault-1.jpg',
+            'episode_source' => $source,
+            'is_embed' => '0',
+            'actor_id' => '',
+            'ratings' => '',
+        ]);
+    }
    foreach ($array['tv_episode_results'] as $episode) {
       $name = addslashes($episode->name);
       $id = $episode->id;
@@ -119,8 +133,20 @@ if (isset($_POST['add'])) {
         file_put_contents($img2, file_get_contents($im_url));
         resize($im_url, $new_file_name_2, '../uploads/episodes/');
       }
- $db->query("INSERT INTO episodes (season_id,movie_id,episode_number,episode_name,episode_description,episode_thumbnail,episode_source,is_embed,actor_id,ratings)
-  VALUES ('" . $season_id . "','" . $video_id . "','" . $episode_number . "','" . $name . "','" . $overview . "','" . $new_file_name_2 . "','" . $source . "','0','" . $makeactors . "','" . $vote_average . "')");
+
+      _db()->insert('episodes', [
+            'season_id' => $season_id,
+            'movie_id' => $video_id,
+            'episode_number' => $episode_number,
+            'season_sub_id' => $season_sub_id,
+            'episode_name' => $name,
+            'episode_description' => $overview,
+            'episode_thumbnail' => $new_file_name_2,
+            'episode_source' => $source,
+            'is_embed' => 0,
+            'actor_id' => $makeactors,
+            'ratings' => $vote_average,
+      ]);
       $actors = $make_actors;
       $movie_id = $db->insert_id;
       $db->query("delete from my_watched where movie_id='".$video_id."'");
@@ -157,9 +183,6 @@ $movies = $db->query("SELECT * FROM movies WHERE movie_genres LIKE '%$getSeriesI
     <link href="assets/css/animate.min.css" rel="stylesheet" />
     <link href="assets/css//bootstrap-select.min.css" rel="stylesheet" />
     <link href="assets/css/theme.css" rel="stylesheet" />
-
-    <!-- <link href="assets/css/chosen.min.css" rel="stylesheet"/>
-<link href="assets/css/chosen-bootstrap.css" rel="stylesheet"/> -->
     <link href="assets/css/plugins.css" rel="stylesheet" />
     <link href="assets/css/style.css" rel="stylesheet" />
     <link href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
@@ -239,7 +262,7 @@ $movies = $db->query("SELECT * FROM movies WHERE movie_genres LIKE '%$getSeriesI
                         <div class="content">
 
                             <?php if (isset($error)) { ?> <div class="alert alert-danger"> <?= $error ?> </div>
-                            <?
+                            <?php
                                                                                   } ?>
                             <form action="" method="post" enctype="multipart/form-data">
                                 <div class="row">
@@ -291,6 +314,14 @@ $movies = $db->query("SELECT * FROM movies WHERE movie_genres LIKE '%$getSeriesI
                                                     class="form-control border-input"
                                                     placeholder="What season does this episode belong to?" required>
                                             </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="panel panel-success">
+                                            <div class="panel-heading panel-title">Episode Number</div>
+                                            <div class="panel-body"> <input type="text" name="season_sub_id" class="form-control border-input" placeholder="Number of the current Episode" required> </div>
                                         </div>
                                     </div>
                                 </div>
