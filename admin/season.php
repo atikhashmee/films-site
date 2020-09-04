@@ -8,7 +8,7 @@ $admin->startUserSession($_SESSION);
 $admin->verifySession(true);
 $admin->verifyAdmin(true);
 $fid = $_GET['id'];
-$M = $db->query("SELECT movie_name,movie_year FROM movies WHERE id=$fid")->fetch_object();
+$M = $db->query("SELECT movie_name,movie_year, movie_poster_image FROM movies WHERE id=$fid")->fetch_object();
 ?>
 <!DOCTYPE HTML>
 <html>
@@ -109,7 +109,10 @@ $M = $db->query("SELECT movie_name,movie_year FROM movies WHERE id=$fid")->fetch
                             }
                             $f= $e->season_sub_id;
                             $eI = $admin->getDomain().'/uploads/episodes/'.$e->episode_thumbnail;
-                           
+                            $imgtype  = @exif_imagetype($eI);
+                            if ($imgtype === false) {
+                                $eI = $admin->getDomain().'/uploads/poster_images/'.$M->movie_poster_image;
+                            }
 												    if(strpos($eI,"maxresdefault-1.jpg") !== false){ //$eI == ''
 		                           $eI = getposterImg($e->movie_id);
 		                        }

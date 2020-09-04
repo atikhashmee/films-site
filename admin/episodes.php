@@ -78,10 +78,12 @@ $totalEpisodes = $db->query("SELECT COUNT(*) FROM episodes WHERE episode_name<>'
                  if($episodes->num_rows >= 1) {
                     while($episode = $episodes->fetch_object()) {
                         $episdeImg = $admin->getDomain().'/uploads/episodes/'.$episode->episode_thumbnail;
-                        // if($episdeImg == ''){
-                        //   $episdeImg = getposterImg($episode->movie_id);
-                        // }
-
+                        $imgtype  = @exif_imagetype($episdeImg);
+                        if ($imgtype === false) {
+                            
+                            $M = $db->query("SELECT movie_poster_image FROM movies WHERE id=$episode->movie_id")->fetch_object();
+                            $episdeImg = $admin->getDomain().'/uploads/poster_images/'.$M->movie_poster_image;
+                        }
                         $movie = $admin->getMovie($episode->movie_id);
                         $My = $movie->movie_year?'('.$movie->movie_year.')':'';
                         $Sdata = $admin->getSeason($episode->season_id);

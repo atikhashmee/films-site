@@ -30,93 +30,55 @@ if(isset($_POST['upload'])) {
 
      $date = date('Y-m-d H:i:s');
 
- $db->query("UPDATE movies SET created_date = '".$date."' WHERE id = '".$video_id."'");
+    $db->query("UPDATE movies SET created_date = '".$date."' WHERE id = '".$video_id."'");
 
     $handle = fopen($_FILES['excel-upload']['tmp_name'],'r');
 
-    while($data = fgetcsv($handle, 1000, ",")){
+    while($data = fgetcsv($handle, 1000, ","))
+    {
 
       $episode_number = $data[0];
-
       $season_number = $data[1];
-
       $source = $data[2];
-
       $epName = $data[3];
-      
       $season_subnumber = $data[3];
-
-
       $echeck = "SELECT * FROM episodes WHERE episode_number='".$episode_number."'";
-
-$echeck = $db->query($echeck);
-
-$echeck->num_rows;
-
- if ($echeck->num_rows > 0) {
-
+      $echeck = $db->query($echeck);
+      $echeck->num_rows;
+        if ($echeck->num_rows > 0) {
             $alredyExists[] = $episode_number;
-
-}
-
-else{
-
-      $checkseason = "SELECT * FROM seasons WHERE season_number='".$season_number."' AND movie_id='".$video_id."'";
-
-      $checkseason = $db->query($checkseason);
-
-  if($checkseason->num_rows<=0){
-
-    $db->query("INSERT INTO seasons (movie_id,season_number) VALUES ('".$video_id."','".$season_number."')");
-
-     $season_id = $db->insert_id;
-
-  }
-
-  else{
-
-  $season = $checkseason->fetch_assoc();
-
-  $season_id = $season['id'];
-
-  }
-
-$curl = curl_init();
-
-curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
-
-curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-
-curl_setopt_array($curl, array(
-
-CURLOPT_URL => "https://api.themoviedb.org/3/find/{$episode_number}?api_key=".TMDB_KEY."&language=en-US&external_source=imdb_id",
-
-CURLOPT_RETURNTRANSFER => true,
-
-CURLOPT_ENCODING => "",
-
-CURLOPT_MAXREDIRS => 10,
-
-CURLOPT_TIMEOUT => 30,
-
-CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-
-));
-
-$response = curl_exec($curl);
-
-
-
-//print_r($response);
-
-$err = curl_error($curl);
-
-curl_close($curl);
+        }
+        else 
+        {
+            $checkseason = "SELECT * FROM seasons WHERE season_number='".$season_number."' AND movie_id='".$video_id."'";
+            $checkseason = $db->query($checkseason);
+            if($checkseason->num_rows<=0)
+            {
+                $db->query("INSERT INTO seasons (movie_id,season_number) VALUES ('".$video_id."','".$season_number."')");
+                $season_id = $db->insert_id;
+            }
+            else
+            {
+                $season = $checkseason->fetch_assoc();
+                $season_id = $season['id'];
+            }
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => "https://api.themoviedb.org/3/find/{$episode_number}?api_key=".TMDB_KEY."&language=en-US&external_source=imdb_id",
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            ));
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+            curl_close($curl);
 
 if ($err) {
-
 echo "cURL Error #:" . $err;
-
 } else {
 
 $json = json_decode($response);
@@ -133,177 +95,97 @@ VALUES ('".$season_id."','".$video_id."','".$episode_number."','".$epName."','Di
 }
 
 foreach($array['tv_episode_results'] as $episode) {
-
   $name = addslashes($episode->name);
-
   $id = $episode->id;
-
   $vote_count = $episode->vote_count;
-
   $vote_average = $episode->vote_average;
-
   $first_air_date = $episode->first_air_date;
-
   $poster_path = $episode->still_path;
-
   $overview = addslashes($episode->overview);
-
   $genre_ids = $episode->genre_ids;
-
   $origin_country = $episode->origin_country;
-
   $episode_num_cast = $episode->episode_number;
-
   $episode_num_cast = $episode->episode_number;
-
   $season_number_cast = $episode->season_number;
-
   $show_id = $episode->show_id;
-
   $make_actors = array();
-
   $actors = json_decode(@file_get_contents("https://api.themoviedb.org/3/tv/{$show_id}/season/{$season_number_cast}/episode/{$episode_num_cast}/credits?api_key=".TMDB_KEY))->cast;
-
-  foreach ($actors as $actor) {
-
-    $nconst = $actor->id;
-
-    $actor_info = json_decode(@file_get_contents("https://api.themoviedb.org/3/person/{$nconst}?api_key=".TMDB_KEY."&language=en-US"));
-
-    $aname = $actor_info->name;
-
-    $birthday = $actor_info->birthday;
-
-    $place_of_birth = $actor_info->place_of_birth;
-
-    $biography = addslashes($actor_info->biography);
-
-    $imdb_id = $actor_info->imdb_id;
-
-    $actor_img = $actor_info->profile_path;
-
-    $im_url_c = "https://image.tmdb.org/t/p/original".$actor_img;
-
-         if($actor_img != ''){
-
-                          $extension = strtolower(end(explode('.',$actor_img)));
-
-                          $c_actor = generate_postname($aname).'_actor'.time().'.'.$extension;
-
-                          $ur11 = $im_url_c;
-
-                          resize(file_get_contents($im_url_c),$c_actor,UPLOAD_PATH.'actors/',50);
-
-                           $img = UPLOAD_PATH.'actors/'.$c_actor;
-
-            //file_put_contents($img, file_get_contents($im_url_c));
-
-
-
-                  }
-
-                  else {
-
-                      $c_actor = "";
-
-                  }
-
-                $sql1 = "SELECT * FROM actors WHERE actor_name LIKE '%".$aname."%'";
-
-                $result1 = $db->query($sql1);
-
-                if ($result1->num_rows <= 0) {
-
-                    $db->query("INSERT INTO actors (actor_name,actor_picture,actor_nconst,birthday,place_of_birth,biography,actor_img_url,imdbid) VALUES ('".$aname."','".$c_actor."','".$nconst."','".$birthday."','".$place_of_birth."','".$biography."','".$im_url_c."','".$imdb_id."')");
-
-                    $actor_id = $db->insert_id;
-
+    foreach ($actors as $actor) 
+    {
+        $nconst = $actor->id;
+        $actor_info = json_decode(@file_get_contents("https://api.themoviedb.org/3/person/{$nconst}?api_key=".TMDB_KEY."&language=en-US"));
+        $aname = $actor_info->name;
+        $birthday = $actor_info->birthday;
+        $place_of_birth = $actor_info->place_of_birth;
+        $biography = addslashes($actor_info->biography);
+        $imdb_id = $actor_info->imdb_id;
+        $actor_img = $actor_info->profile_path;
+        $im_url_c = "https://image.tmdb.org/t/p/original".$actor_img;
+            if($actor_img != '')
+            {
+                $extension = strtolower(end(explode('.',$actor_img)));
+                $c_actor = generate_postname($aname).'_actor'.time().'.'.$extension;
+                $ur11 = $im_url_c;
+                resize(file_get_contents($im_url_c),$c_actor,UPLOAD_PATH.'actors/',50);
+                $img = UPLOAD_PATH.'actors/'.$c_actor;
+            }
+            else
+            {
+                $c_actor = "";
+            }
+            $sql1 = "SELECT * FROM actors WHERE actor_name LIKE '%".$aname."%'";
+            $result1 = $db->query($sql1);
+            if ($result1->num_rows <= 0) {
+                $db->query("INSERT INTO actors (actor_name,actor_picture,actor_nconst,birthday,place_of_birth,biography,actor_img_url,imdbid) VALUES ('".$aname."','".$c_actor."','".$nconst."','".$birthday."','".$place_of_birth."','".$biography."','".$im_url_c."','".$imdb_id."')");
+                $actor_id = $db->insert_id;
+            }
+            else 
+            {
+                while($row1 = $result1->fetch_assoc()) 
+                {
+                    $actor_id = $row1['id'];
+                    $a = "UPDATE actors SET actor_name = '$aname',actor_picture ='$c_actor',actor_nconst = '$nconst',birthday='$birthday', place_of_birth='$place_of_birth',biography='$biography',actor_img_url='$im_url_c',imdbid='$imdb_id' WHERE id = '$actor_id'";
+                    $db->query($a);
                 }
-
-            else {
-
-              while($row1 = $result1->fetch_assoc()) {
-
-                $actor_id = $row1['id'];
-
-               $a = "UPDATE actors SET actor_name = '$aname',actor_picture ='$c_actor',actor_nconst = '$nconst',birthday='$birthday', place_of_birth='$place_of_birth',biography='$biography',actor_img_url='$im_url_c',imdbid='$imdb_id' WHERE id = '$actor_id'";
-
-                $db->query($a);
-
-              }
-
-                }
-
-                $make_actors[] = $actor_id;
-
-  }
-
-
-
-  $makeactors = implode(",",$make_actors);
-
-  $im_url = "https://image.tmdb.org/t/p/original".$poster_path;
-
-        if($im_url != "") {
-
+            }
+            $make_actors[] = $actor_id;
+    }
+    $makeactors = implode(",",$make_actors);
+    $im_url = "https://image.tmdb.org/t/p/original".$poster_path;
+        if($im_url != "") 
+        {
             $extension = strtolower(end(explode('.',$movieOutput->poster_path)));
-
             $new_file_name_2 = generate_postname($movieOutput->title).'_poster'.time().'.'.$extension;
-
-            //$new_file_name = generate_postname($movieOutput->title).'_poster2.'.$extension;
-
             $url = $im_url;
-
-            //$img = '../uploads/masonry_images/'.$new_file_name;
-
             $img2 = '../uploads/episodes/'.$new_file_name_2;
-
             file_put_contents($img2, file_get_contents($im_url));
-
             resize($im_url,$new_file_name_2,'../uploads/episodes/');
-
-            //file_put_contents($img, file_get_contents($url));
-
         }
-
-//   $actors = get_object_vars($actor);
-
-// print_r($actor['cast']);
-if(!empty($name)){
-    $eName = $name;
-}else{
-    $eName = $epName;
-}
-
-
-
-$result=$db->query("INSERT INTO episodes (season_id,movie_id,episode_number,episode_name,episode_description,episode_thumbnail,episode_source,is_embed,actor_id,ratings,season_sub_id)
+        if(!empty($name))
+        {
+            $eName = $name;
+        }
+        else
+        {
+            $eName = $epName;
+        }
+    $result=$db->query("INSERT INTO episodes (season_id,movie_id,episode_number,episode_name,episode_description,episode_thumbnail,episode_source,is_embed,actor_id,ratings,season_sub_id)
 
 VALUES ('".$season_id."','".$video_id."','".$episode_number."','".$eName."','".$overview."','".$new_file_name_2."','".$source."','0','".$makeactors."','".$vote_average."','".$season_subnumber."')");
 
-  $actors = $make_actors;
-
+        $actors = $make_actors;
         $movie_id = $db->insert_id;
-
-         $db->query("INSERT INTO ratings(movie_id,user_id,rating) VALUES ('{$movie_id}','22','{$vote_average}')");
-
-         $sql = "SELECT * FROM actor_relations WHERE actor_id='".$actor_id."' AND movie_id='".$movie_id."'";
-
+        $db->query("INSERT INTO ratings(movie_id,user_id,rating) VALUES ('{$movie_id}','22','{$vote_average}')");
+        $sql = "SELECT * FROM actor_relations WHERE actor_id='".$actor_id."' AND movie_id='".$movie_id."'";
         $result = $db->query($sql);
-
-            if ($result->num_rows <= 0) {
-
-        foreach($actors as $actor => $actor_id) {
-
-            $db->query("INSERT INTO actor_relations(movie_id,actor_id) VALUES ('{$movie_id}','{$actor_id}')");
-
+        if ($result->num_rows <= 0) 
+        {
+            foreach($actors as $actor => $actor_id) 
+            {
+                $db->query("INSERT INTO actor_relations(movie_id,actor_id) VALUES ('{$movie_id}','{$actor_id}')");
+            }
         }
-
-      }
-
         $db->query("UPDATE movies SET all_starcast = 'yes' WHERE id = '{$movie_id}'");
-
-      //   $db->query("delete from my_watched where movie_id='{$video_id}'");
 
 }
 
@@ -483,22 +365,18 @@ $movies = $db->query("SELECT * FROM movies WHERE movie_genres LIKE '%$getSeriesI
                                         <div class="panel panel-success">
                                             <div class="panel-heading panel-title">Choose Series</div>
                                             <div class="panel-body">
-                                          
-
-                                                    <select name="video_id" class="form-control selectpicker" id="select-country"
-                                                        data-live-search="true" required>
-
-                                                                                              <?php
-    while ($movie = $movies->fetch_object()) {
-      if ($movie->is_series == 1) {
-        echo '<option value="' . $movie->id . '"> ' . $movie->movie_name . ' (' . $movie->movie_year . ')' . ' ' . $movie->imdbid . ' </option>';
-      }
-    }
-    ?>
-
-                                                    </select>
-
-                                              
+                                                <select name="video_id" 
+                                                    class="form-control selectpicker" id="select-country"
+                                                    data-live-search="true" required>
+                                                        <?php
+                                                            while ($movie = $movies->fetch_object()) 
+                                                            {
+                                                                if ($movie->is_series == 1) {
+                                                                    echo '<option value="' . $movie->id . '"> ' . $movie->movie_name . ' (' . $movie->movie_year . ')' . ' ' . $movie->imdbid . ' </option>';
+                                                                }
+                                                            }
+                                                        ?>
+                                                </select>
                                             </div>
                                         </div>
                                     </div>
@@ -516,11 +394,8 @@ $movies = $db->query("SELECT * FROM movies WHERE movie_genres LIKE '%$getSeriesI
                                         </div>
                                     </div>
                                 </div>
-
                                 <div class="form-group">
-
                                     <button type="submit" class="btn btn-success btn-fill" name="upload">Upload</button>
-
                                 </div>
 
                             </form>
